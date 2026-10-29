@@ -1,0 +1,9 @@
+.venv/
+**/target/
+**/node_modules/
+**/__pycache__/
+*.py[cod]
+.env
+backend/ml/data/fars2024/FARS2024NationalCSV/
+
+.git-backup-*/

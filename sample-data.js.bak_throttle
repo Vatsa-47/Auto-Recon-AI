@@ -1,0 +1,1712 @@
+/**
+ * AUTO-RECON AI - Automotive Digital Forensics Knowledgebase & Demonstration Datasets
+ * Designed for forensic engineering analysis, incident reconstruction, and explainable findings.
+ * Includes 6 Demonstration Incident Scenarios, Multi-Modal Analysis Components,
+ * and Dynamic Forensic Investigator Recommendation Datasets.
+ */
+
+// ==========================================================================
+// 1. AI + PHYSICS ANALYSIS COMPONENTS
+// ==========================================================================
+const ANALYSIS_COMPONENTS = {
+  "TEMPORAL_ANALYSIS": {
+    id: "TEMPORAL_ANALYSIS",
+    name: "Temporal Signal Analysis",
+    description: "Evaluates microsecond-aligned sequential packet streams across CAN networks and ECU event buffers to identify arbitration delays, message drops, and timing anomalies.",
+    method: "Sequence Modeling & Arbitration Timing Inspection"
+  },
+  "PHYSICS_VALIDATION": {
+    id: "PHYSICS_VALIDATION",
+    name: "Physics Validation",
+    description: "Validates recorded sensor telemetry against Newtonian kinematic constraints (conservation of momentum, tire-road friction coefficient, vehicle mass inertia, and deceleration limits).",
+    method: "Kinematic Constraint Verification"
+  },
+  "SENSOR_FUSION": {
+    id: "SENSOR_FUSION",
+    name: "Sensor Fusion",
+    description: "Cross-references multi-sensor data streams (wheel pulse transducers, IMU accelerometers, GPS positioning, and radar targets) to reconstruct a continuous state trajectory.",
+    method: "Extended Kalman Filter State Estimation"
+  },
+  "EXPLAINABLE_AI": {
+    id: "EXPLAINABLE_AI",
+    name: "Explainable AI (XAI)",
+    description: "Calculates mathematical feature contribution weights for each telemetry channel to provide evidence-grounded rationales for detected anomalies.",
+    method: "Shapley Additive Explanations (TreeSHAP)"
+  }
+};
+
+// ==========================================================================
+// 2. 6 DEMONSTRATION INCIDENT SCENARIOS WITH FORENSIC RECOMMENDATIONS
+// ==========================================================================
+const FORENSIC_CASES = {
+  "CASE_AF_8902": {
+    id: "AF-8902",
+    title: "Urban Intersection — Brake Response Anomaly",
+    shortTitle: "1. Urban Intersection — Brake Response Anomaly",
+    scenarioType: "Intersection Collision (Timing Anomaly Investigation)",
+    primaryDataSources: ["CAN Bus Log", "EDR EEPROM", "Brake Transducers", "Video Flow"],
+    vehicleInfo: {
+      make: "Apex EV",
+      model: "Vortex Sedan",
+      year: "2025",
+      vin: "1HGCR2F83PA098124",
+      ecuFirmware: "v4.12.8-prod",
+      edrModule: "Bosch CDR Gen 4"
+    },
+    incidentTime: "2026-08-14 17:42:19 UTC",
+    location: {
+      address: "Intersection of Cyber Highway & 4th Avenue",
+      lat: 28.613939,
+      lng: 77.209021,
+      speedLimit: 60,
+      roadCondition: "Dry Asphalt, Daylight"
+    },
+    summary: "Vehicle collided with cross-traffic at 57.8 km/h. Physical driver brake pedal activation was confirmed at t = -3.10s, but hydraulic brake line pressure was delayed by 2.1 seconds on the vehicle network.",
+    summaryTags: ["Brake Delay Anomaly", "Driver Input Recorded", "Impact Deceleration Recorded", "Demonstration Case"],
+    aiVerdict: {
+      primaryCause: "Brake response timing anomaly detected prior to intersection entry",
+      confidence: 92.4,
+      driverActionVerified: "Telemetry indicates driver depressed brake pedal at t = -3.10s. CAN message transmission for hydraulic brake line pressure reflects an anomalous delay of approximately 2.1 seconds before pressure rise.",
+      supportingEvidence: [
+        "Brake switch input (EDR Pin 14) transitioned to ACTIVE at t = -3.10s",
+        "CAN ID 0x01B0 (hydraulic command) delayed until t = -1.00s",
+        "CAN bus load spiked to 94% between t = -3.10s and t = -1.50s",
+        "Vehicle deceleration delayed until t = -0.50s, reaching -18.4g at impact"
+      ],
+      xaiFeatureWeights: [
+        { feature: "Brake pedal switch input (Pin 14)", weight: 0.38, impact: "Driver action confirmed" },
+        { feature: "Actuator command latency (CAN 0x01B0)", weight: 0.32, impact: "Transmission delay anomaly" },
+        { feature: "Wheel speed deceleration curve", weight: 0.18, impact: "Delayed physical braking" },
+        { feature: "Radar / camera closing rate", weight: 0.12, impact: "Consistent with collision velocity" }
+      ],
+      anomalyCount: 3,
+      crashTimeSec: 0.00
+    },
+    investigatorRecommendation: {
+      assessment: "CAN/network anomaly",
+      assessmentSubtext: "High-priority bus load saturation and delayed actuator command transmission",
+      confidence: 92.4,
+      summary: "The reconstructed timeline indicates an abnormal vehicle event associated with unusual CAN communication and ECU activity. The available evidence suggests that the incident requires further investigation of the vehicle communication network and affected ECU.",
+      whyReasons: [
+        "Driver brake switch input (EDR Pin 14) transitioned to ACTIVE at t = -3.10s with 0% accelerator demand, confirming deliberate human stopping intent.",
+        "CAN bus load spiked abnormally to 94% between t = -3.10s and t = -1.50s with high-frequency frame sequence (ID 0x0284).",
+        "Hydraulic actuator command frame (ID 0x01B0) was delayed on the arbitration bus until t = -1.00s, producing an anomalous 2.1-second transmission latency.",
+        "Evidence correlation shows an unambiguous temporal relationship between network contention and lack of vehicle deceleration prior to the 57.8 km/h collision."
+      ],
+      detectedAnomalies: [
+        { time: "t = -3.10s", component: "CAN Bus Arbitration", description: "Bus load spiked to 89% with high-priority frame flooding (ID 0x0284)." },
+        { time: "t = -2.50s", component: "Network Traffic", description: "Repetitive payload FF FF FF 00 1B 00 transmitted every 5ms." },
+        { time: "t = -1.00s", component: "Brake Actuator ECU", description: "Hydraulic command frame 0x01B0 delayed by 2100ms." },
+        { time: "t = 0.00s", component: "EDR Impact Pulse", description: "High-energy intersection collision recorded at -18.4g." }
+      ],
+      recommendedNextSteps: [
+        "Review relevant CAN frames and ECU logs around the detected incident timestamp (t = -5.0s to t = +1.0s) and correlate them with the EDR event.",
+        "Identify the transmitting ECU responsible for arbitration ID 0x0284 during the 2.1-second contention window.",
+        "Perform bench testing on the hydraulic brake actuator module to inspect command queue buffer handling and arbitration timeout behavior.",
+        "Check gateway routing tables and diagnostic event memory for uncommanded diagnostic sessions or bus flooding origin."
+      ],
+      furtherExaminationEvidence: [
+        "High-speed chassis CAN transceiver physical layer logs and terminating resistor integrity",
+        "Gateway ECU message routing tables and arbitration priority matrix",
+        "Hydraulic brake control module EEPROM fault freeze-frames"
+      ],
+      limitations: [
+        "Raw bit-level oscilloscope analog waveforms were not recorded; analysis relies on decoded timestamped frames.",
+        "Cabin microphone recording was unequipped to verify acoustic alert chime timing."
+      ]
+    },
+    stakeholderGuidance: {
+      scenarioCategory: "VEHICLE_FAULT",
+      categoryLabel: "Vehicle / Car Fault (Braking Subsystem Anomaly)",
+      hasSufficientEvidence: true,
+      recommendations: [
+        {
+          causeDetected: "Hydraulic Brake Actuator Latency & CAN Arbitration Delay",
+          evidenceLevel: "Confirmed Evidence",
+          confidence: 92.4,
+          responsibleStakeholder: "VEHICLE MANUFACTURER",
+          stakeholderIcon: "fa-industry",
+          evidence: "Driver brake switch input (EDR Pin 14) transitioned to ACTIVE at t = -3.10s. CAN command frame 0x01B0 (hydraulic command) was delayed on the arbitration bus until t = -1.00s due to high-priority frame flooding (ID 0x0284), creating an anomalous 2.1-second transmission latency.",
+          recommendedAction: "Vehicle manufacturer engineering team should investigate the braking subsystem CAN arbitration priority queue and review gateway buffer timeout thresholds to prevent message starvation."
+        },
+        {
+          causeDetected: "Hydraulic Brake Line Pressure Build Latency",
+          evidenceLevel: "Probable Contributing Factor",
+          confidence: 88.0,
+          responsibleStakeholder: "VEHICLE SERVICE / MAINTENANCE",
+          stakeholderIcon: "fa-wrench",
+          evidence: "Deceleration was limited to -0.28g until t = -0.50s despite 100 Bar brake pedal application, indicating hydraulic pre-charge delay.",
+          recommendedAction: "Authorized service technicians should perform hydraulic brake fluid pressure line tests and inspect actuator valve spool travel for mechanical sticking."
+        }
+      ],
+      incidentResponsibility: {
+        primary: {
+          factor: "Vehicle communication & actuator anomaly",
+          confidenceLevel: "High Confidence (92%)",
+          evidenceSummary: "Confirmed CAN message arbitration delay of 2.1 seconds prior to pressure rise."
+        },
+        secondary: {
+          factor: "Cross-traffic vehicle path conflict",
+          confidenceLevel: "Probable factor (85%)",
+          evidenceSummary: "Target vehicle crossed intersection during signal transition."
+        },
+        vehicleFault: {
+          status: "Confirmed electronic/actuator anomaly detected",
+          evidenceSummary: "2.1-second latency between driver pedal command and hydraulic line pressure rise."
+        },
+        roadEnvironment: {
+          status: "Nominal dry road surface",
+          evidenceSummary: "No infrastructure defects or pavement irregularities identified."
+        },
+        decisionSupportNotice: "This assessment represents a technical forensic decision-support indicator based on synchronized EDR, CAN, and kinematic data. It is not a legal verdict."
+      }
+    },
+    evidenceHashes: [
+      { source: "EDR EEPROM Dump (.bin)", sha256: "08ff1ff6d740cb5d4860f7f643a970167164ed6e2d3718fc11fffe6f106571d4", size: "4.2 MB", status: "VERIFIED", verifiedBy: "Investigator SHA-256 Ledger" },
+      { source: "High-Speed CAN Log (.asc)", sha256: "e0c0415949fb6ac8edd306a34dcae0fbad6020623419af533d1875ef89d402c4", size: "128.5 MB", status: "VERIFIED", verifiedBy: "Investigator SHA-256 Ledger" },
+      { source: "Forward Dashcam Stream (.mp4)", sha256: "0df0b8a8eab1ace33cb976565ff5ba3e18eaf7a170568aaa6e66feecb31308c0", size: "482.1 MB", status: "VERIFIED", verifiedBy: "Investigator SHA-256 Ledger" },
+      { source: "GPS NMEA & IMU Log (.log)", sha256: "ba53f9baa318bb4d4ba8064721f32296f408c8ec488cd809d9caddb1ed8fbb4e", size: "1.8 MB", status: "VERIFIED", verifiedBy: "Investigator SHA-256 Ledger" }
+    ],
+    timelineMilestones: [
+      { t: -5.0, label: "Approach", desc: "Cruise at 72 km/h", type: "nominal" },
+      { t: -3.1, label: "Brake Depressed", desc: "Driver input 82%", type: "action" },
+      { t: -1.0, label: "Actuator Latency", desc: "CAN delay 2.1s", type: "anomaly" },
+      { t: 0.0, label: "IMPACT", desc: "Collision at 57.8 km/h", type: "impact" },
+      { t: 1.5, label: "Final Stop", desc: "Vehicle rest", type: "nominal" }
+    ],
+    telemetry: [
+      { t: -5.0, speed: 72.0, throttle: 48, brake: 0, steer: 1.2, yaw: 0.1, longG: -0.02, abs: false, canLoad: 38, canId: "0x0120", canPayload: "48 00 00 48 01 2A", anomaly: false, notes: "Cruising at steady speed" },
+      { t: -4.5, speed: 71.8, throttle: 45, brake: 0, steer: 0.8, yaw: 0.0, longG: -0.03, abs: false, canLoad: 39, canId: "0x0120", canPayload: "45 00 00 47 01 2A", anomaly: false, notes: "Approaching intersection" },
+      { t: -4.0, speed: 71.2, throttle: 35, brake: 0, steer: -1.0, yaw: -0.2, longG: -0.05, abs: false, canLoad: 41, canId: "0x0130", canPayload: "23 00 12 00 00 11", anomaly: false, notes: "Driver releases accelerator pedal" },
+      { t: -3.5, speed: 70.0, throttle: 0, brake: 0, steer: -1.5, yaw: -0.3, longG: -0.12, abs: false, canLoad: 42, canId: "0x0130", canPayload: "00 00 00 00 00 00", anomaly: false, notes: "Accelerator pedal at 0%" },
+      { t: -3.1, speed: 69.4, throttle: 0, brake: 82, steer: -4.2, yaw: -0.8, longG: -0.15, abs: false, canLoad: 89, canId: "0x0284", canPayload: "FF FF FF 00 1B 00", anomaly: true, notes: "EVENT: Driver presses brake (82%). CAN bus load rises sharply." },
+      { t: -2.5, speed: 68.9, throttle: 0, brake: 88, steer: -8.5, yaw: -1.2, longG: -0.18, abs: false, canLoad: 94, canId: "0x0284", canPayload: "FF FF FF 00 1B 00", anomaly: true, notes: "Brake command delayed; hydraulic pressure remains low." },
+      { t: -2.0, speed: 67.5, throttle: 0, brake: 95, steer: -14.0, yaw: -2.1, longG: -0.22, abs: false, canLoad: 92, canId: "0x0284", canPayload: "FF FF FF 00 1B 00", anomaly: true, notes: "Driver applies left steering to evade; deceleration minimal." },
+      { t: -1.5, speed: 65.8, throttle: 0, brake: 100, steer: -22.0, yaw: -3.4, longG: -0.28, abs: false, canLoad: 88, canId: "0x0284", canPayload: "FF FF FF 00 1B 00", anomaly: true, notes: "Hydraulic actuator response absent despite pedal depression." },
+      { t: -1.0, speed: 63.2, throttle: 0, brake: 100, steer: -30.5, yaw: -4.8, longG: -0.45, abs: false, canLoad: 74, canId: "0x01B0", canPayload: "64 00 58 01 00 00", anomaly: false, notes: "Hydraulic command frame 0x01B0 received by brake module." },
+      { t: -0.5, speed: 59.5, throttle: 0, brake: 100, steer: -35.0, yaw: -6.2, longG: -0.85, abs: true, canLoad: 58, canId: "0x01B0", canPayload: "64 00 58 01 00 01", anomaly: false, notes: "Hydraulic line pressure builds; ABS activates." },
+      { t: 0.0, speed: 57.8, throttle: 0, brake: 100, steer: -38.2, yaw: 18.5, longG: -18.4, abs: true, canLoad: 62, canId: "0x0001", canPayload: "AC 01 DE AD BE EF", anomaly: true, notes: "IMPACT: T-Bone collision at intersection center (-18.4g)" },
+      { t: 0.5, speed: 28.0, throttle: 0, brake: 100, steer: -55.0, yaw: 42.0, longG: -4.2, abs: true, canLoad: 68, canId: "0x0002", canPayload: "00 00 00 00 00 00", anomaly: false, notes: "Post-impact rotational trajectory" },
+      { t: 1.0, speed: 12.0, throttle: 0, brake: 100, steer: -40.0, yaw: 15.0, longG: -1.2, abs: false, canLoad: 45, canId: "0x0002", canPayload: "00 00 00 00 00 00", anomaly: false, notes: "Deceleration against road curb" },
+      { t: 1.5, speed: 0.0, throttle: 0, brake: 100, steer: -30.0, yaw: 0.0, longG: 0.0, abs: false, canLoad: 35, canId: "0x0000", canPayload: "00 00 00 00 00 00", anomaly: false, notes: "Vehicle brought to a complete stop" },
+      { t: 2.0, speed: 0.0, throttle: 0, brake: 0, steer: 0.0, yaw: 0.0, longG: 0.0, abs: false, canLoad: 31, canId: "0x0000", canPayload: "00 00 00 00 00 00", anomaly: false, notes: "EDR locked event record recorded" },
+      { t: 2.5, speed: 0.0, throttle: 0, brake: 0, steer: 0.0, yaw: 0.0, longG: 0.0, abs: false, canLoad: 28, canId: "0x0000", canPayload: "00 00 00 00 00 00", anomaly: false, notes: "Event recording cycle finalized" }
+    ]
+  },
+
+  "CASE_AF_4421": {
+    id: "AF-4421",
+    title: "Highway Exit — Sudden Acceleration Analysis",
+    shortTitle: "2. Highway Exit — Sudden Acceleration Analysis",
+    scenarioType: "Exit Ramp Collision (Pedal Application Investigation)",
+    primaryDataSources: ["EDR Crash Table", "Powertrain CAN", "Throttle Sensors"],
+    vehicleInfo: {
+      make: "Hyperion",
+      model: "AeroPulse GT",
+      year: "2024",
+      vin: "3FA6P0HD8LR192847",
+      ecuFirmware: "v2.09.1",
+      edrModule: "Denso EDR Gen 3"
+    },
+    incidentTime: "2026-07-22 09:15:44 UTC",
+    location: {
+      address: "Expressway Exit Ramp 12B, Westbound",
+      lat: 19.076090,
+      lng: 72.877426,
+      speedLimit: 80,
+      roadCondition: "Wet Asphalt, Overcast"
+    },
+    summary: "Investigation into reported uncommanded acceleration during exit ramp negotiation. Sensor telemetry indicates 99% accelerator demand with 0 Bar hydraulic brake line pressure until 200ms before barrier impact.",
+    summaryTags: ["Pedal Misapplication Indicated", "0 Bar Brake Pressure", "Accelerating Trajectory", "Demonstration Case"],
+    aiVerdict: {
+      primaryCause: "Pedal input pattern indicates accelerator depression rather than brake application",
+      confidence: 94.0,
+      driverActionVerified: "Dual throttle position sensor signals (TPS1 & TPS2) indicate 99% accelerator demand until 200ms before barrier impact. Hydraulic brake pressure remained at 0 Bar throughout the acceleration event.",
+      supportingEvidence: [
+        "Dual throttle sensors TPS1 and TPS2 tracked synchronously to 99%",
+        "Hydraulic brake line pressure remained at 0 Bar until t = -0.20s",
+        "Vehicle accelerated from 65.0 km/h to 119.5 km/h on curved ramp",
+        "No uncommanded throttle actuation DTCs recorded in PCM memory"
+      ],
+      xaiFeatureWeights: [
+        { feature: "Throttle position sensor 1 & 2 agreement", weight: 0.45, impact: "Consistent with pedal application" },
+        { feature: "Hydraulic brake line pressure (0 Bar)", weight: 0.35, impact: "No early braking recorded" },
+        { feature: "Engine RPM / torque demand match", weight: 0.15, impact: "Nominal powertrain response" },
+        { feature: "CAN frame cyclic counter continuity", weight: 0.05, impact: "Bus communications intact" }
+      ],
+      anomalyCount: 1,
+      crashTimeSec: 0.00
+    },
+    investigatorRecommendation: {
+      assessment: "Driver/physical event",
+      assessmentSubtext: "Physical pedal misapplication with continuous throttle and absence of braking",
+      confidence: 94.0,
+      summary: "The reconstructed timeline indicates that vehicle acceleration resulted from physical accelerator pedal depression without concurrent brake demand. The available evidence suggests the incident is consistent with driver pedal misapplication rather than an electronic throttle malfunction.",
+      whyReasons: [
+        "Dual independent throttle position sensors (TPS1 and TPS2) tracked synchronously to 99% demand with zero signal plausibility divergence.",
+        "Hydraulic brake line pressure transducer registered exactly 0 Bar continuously from t = -5.0s until emergency panic braking at t = -0.20s.",
+        "Powertrain Control Module (PCM) logged zero uncommanded acceleration Diagnostic Trouble Codes (DTCs) or communication bus errors.",
+        "Engine RPM, transmission gear ratio, and wheel speeds show deterministic kinematic alignment with commanded throttle demand."
+      ],
+      detectedAnomalies: [
+        { time: "t = -4.00s", component: "Driver Input Interface", description: "Rapid throttle demand surge to 80% on curved exit ramp." },
+        { time: "t = -3.50s", component: "Kinematic Speed Profile", description: "Velocity accelerated to 99% throttle, exceeding posted 60 km/h ramp advisory." },
+        { time: "t = -0.20s", component: "Brake Hydraulic Circuit", description: "Late emergency brake application 200ms pre-impact." }
+      ],
+      recommendedNextSteps: [
+        "Examine the physical driver footwell area, floor mat anchors, and pedal cluster for mechanical entrapment or interference.",
+        "Download non-volatile flash logs from the Powertrain Control Module (PCM) to verify analog sensor voltage linearity curves.",
+        "Conduct a mechanical return-spring resistance test on the electronic accelerator pedal assembly.",
+        "Interview vehicle occupants regarding driver footing and sudden evasive maneuvers."
+      ],
+      furtherExaminationEvidence: [
+        "Physical accelerator pedal assembly and return springs",
+        "Vehicle floor mat retainers and driver footwell carpet clearance",
+        "PCM and TCM freeze-frame freeze records"
+      ],
+      limitations: [
+        "Driver footwell camera was not installed; physical pedal contact is inferred from dual sensor potentiometer telemetry."
+      ]
+    },
+    stakeholderGuidance: {
+      scenarioCategory: "DRIVER_FAULT",
+      categoryLabel: "Driver / Human Fault (Pedal Misapplication & Delayed Braking)",
+      hasSufficientEvidence: true,
+      recommendations: [
+        {
+          causeDetected: "Driver Pedal Misapplication & Sustained Accelerator Demand",
+          evidenceLevel: "Confirmed Evidence",
+          confidence: 94.0,
+          responsibleStakeholder: "DRIVER / ROAD USER",
+          stakeholderIcon: "fa-user",
+          evidence: "Dual independent throttle position sensors (TPS1 & TPS2) tracked synchronously to 99% demand on the exit curve, while hydraulic brake pressure remained at 0 Bar until 200ms before crash cushion impact.",
+          recommendedAction: "Drivers should maintain disciplined foot placement and reduce speed well in advance of curved exit ramps to avoid sudden emergency pedal confusion."
+        }
+      ],
+      incidentResponsibility: {
+        primary: {
+          factor: "Driver behavior (Pedal misapplication & delayed braking)",
+          confidenceLevel: "High Confidence (94%)",
+          evidenceSummary: "Continuous 99% accelerator demand recorded with 0 Bar brake pressure until 200ms pre-impact."
+        },
+        secondary: {
+          factor: "None identified",
+          confidenceLevel: "Single primary causal factor",
+          evidenceSummary: "Kinematic data confirms speed surge directly matches commanded throttle percentage."
+        },
+        vehicleFault: {
+          status: "No technical malfunction detected",
+          evidenceSummary: "Dual TPS potentiometers matched with 0% error; zero uncommanded throttle DTCs recorded in PCM."
+        },
+        roadEnvironment: {
+          status: "Wet asphalt, overcast daylight",
+          evidenceSummary: "Exit ramp advisory signage and impact attenuator met highway safety standards."
+        },
+        decisionSupportNotice: "This assessment represents a technical forensic decision-support indicator based on synchronized EDR, CAN, and kinematic data. It is not a legal verdict."
+      }
+    },
+    evidenceHashes: [
+      { source: "EDR Crash Log (.bin)", sha256: "13bdb670f3e2e1f6a5ac04998736c4a6bfd0ae190c891b148aee628538f3f476", size: "3.8 MB", status: "VERIFIED", verifiedBy: "Investigator SHA-256 Ledger" },
+      { source: "Powertrain CAN Dump (.asc)", sha256: "b1d6845a7b6fd0b95e03694ccf9bb7ff483b0a31d26e1f396591ee80b188679e", size: "94.2 MB", status: "VERIFIED", verifiedBy: "Investigator SHA-256 Ledger" },
+      { source: "Dashcam Video (.mp4)", sha256: "e1b42d6a0349232434d818e1827cadaac7edbce6d44ccf4d8a0a9f9fd293f36c", size: "340.0 MB", status: "VERIFIED", verifiedBy: "Investigator SHA-256 Ledger" }
+    ],
+    timelineMilestones: [
+      { t: -5.0, label: "Ramp Approach", desc: "Cruise at 65 km/h", type: "nominal" },
+      { t: -4.0, label: "Throttle Surge", desc: "Accelerator to 80%", type: "anomaly" },
+      { t: -0.2, label: "Late Braking", desc: "200ms pre-impact", type: "action" },
+      { t: 0.0, label: "IMPACT", desc: "Attenuator at 117 km/h", type: "impact" },
+      { t: 1.5, label: "Final Rest", desc: "Rest at barrier", type: "nominal" }
+    ],
+    telemetry: [
+      { t: -5.0, speed: 65.0, throttle: 20, brake: 0, steer: 0.0, yaw: 0.0, longG: 0.05, abs: false, canLoad: 35, canId: "0x0110", canPayload: "14 00 00 00 00 00", anomaly: false, notes: "Approaching exit ramp" },
+      { t: -4.5, speed: 66.2, throttle: 25, brake: 0, steer: 2.0, yaw: 0.1, longG: 0.08, abs: false, canLoad: 36, canId: "0x0110", canPayload: "19 00 00 00 00 00", anomaly: false, notes: "Initiating ramp turn" },
+      { t: -4.0, speed: 69.5, throttle: 80, brake: 0, steer: 4.5, yaw: 0.3, longG: 0.35, abs: false, canLoad: 37, canId: "0x0110", canPayload: "50 00 00 00 00 00", anomaly: true, notes: "EVENT: Throttle increases rapidly to 80%" },
+      { t: -3.5, speed: 76.0, throttle: 98, brake: 0, steer: 8.0, yaw: 0.8, longG: 0.52, abs: false, canLoad: 38, canId: "0x0110", canPayload: "62 00 00 00 00 00", anomaly: true, notes: "Throttle reaches 98%; vehicle accelerates along curve" },
+      { t: -3.0, speed: 84.5, throttle: 99, brake: 0, steer: 12.0, yaw: 1.5, longG: 0.58, abs: false, canLoad: 39, canId: "0x0110", canPayload: "63 00 00 00 00 00", anomaly: false, notes: "Velocity exceeds posted ramp limit" },
+      { t: -2.5, speed: 93.0, throttle: 99, brake: 0, steer: 18.0, yaw: 2.4, longG: 0.60, abs: false, canLoad: 40, canId: "0x0110", canPayload: "63 00 00 00 00 00", anomaly: false, notes: "Steering corrections applied with continuous throttle" },
+      { t: -2.0, speed: 101.2, throttle: 99, brake: 0, steer: 25.0, yaw: 3.8, longG: 0.55, abs: false, canLoad: 41, canId: "0x0110", canPayload: "63 00 00 00 00 00", anomaly: false, notes: "Speed passes 100 km/h; brake pressure at 0 Bar" },
+      { t: -1.5, speed: 108.5, throttle: 99, brake: 0, steer: 35.0, yaw: 5.5, longG: 0.48, abs: false, canLoad: 42, canId: "0x0110", canPayload: "63 00 00 00 00 00", anomaly: false, notes: "Vehicle yaw angle deviates from ramp lane" },
+      { t: -1.0, speed: 114.0, throttle: 99, brake: 0, steer: 45.0, yaw: 7.8, longG: 0.35, abs: false, canLoad: 43, canId: "0x0110", canPayload: "63 00 00 00 00 00", anomaly: false, notes: "Driver steering input sharpens toward barrier" },
+      { t: -0.5, speed: 118.2, throttle: 99, brake: 0, steer: 48.0, yaw: 9.2, longG: 0.20, abs: false, canLoad: 45, canId: "0x0110", canPayload: "63 00 00 00 00 00", anomaly: false, notes: "Pre-impact trajectory points directly to attenuator" },
+      { t: -0.2, speed: 119.5, throttle: 0, brake: 100, steer: 50.0, yaw: 10.5, longG: -0.90, abs: true, canLoad: 55, canId: "0x01B0", canPayload: "64 00 00 00 00 00", anomaly: false, notes: "EVENT: Brake pedal depressed 200ms before barrier impact" },
+      { t: 0.0, speed: 117.0, throttle: 0, brake: 100, steer: 52.0, yaw: 32.0, longG: -24.5, abs: true, canLoad: 68, canId: "0x0001", canPayload: "AC 01 DE AD BE EF", anomaly: true, notes: "IMPACT: Crash cushion contact at 117 km/h (-24.5g)" },
+      { t: 0.5, speed: 45.0, throttle: 0, brake: 100, steer: 60.0, yaw: 65.0, longG: -8.2, abs: true, canLoad: 72, canId: "0x0002", canPayload: "00 00 00 00 00 00", anomaly: false, notes: "Vehicle deflection along guardrail" },
+      { t: 1.0, speed: 15.0, throttle: 0, brake: 100, steer: 40.0, yaw: 20.0, longG: -2.1, abs: false, canLoad: 50, canId: "0x0002", canPayload: "00 00 00 00 00 00", anomaly: false, notes: "Secondary barrier friction deceleration" },
+      { t: 1.5, speed: 0.0, throttle: 0, brake: 0, steer: 0.0, yaw: 0.0, longG: 0.0, abs: false, canLoad: 32, canId: "0x0000", canPayload: "00 00 00 00 00 00", anomaly: false, notes: "Vehicle at final resting position" },
+      { t: 2.0, speed: 0.0, throttle: 0, brake: 0, steer: 0.0, yaw: 0.0, longG: 0.0, abs: false, canLoad: 30, canId: "0x0000", canPayload: "00 00 00 00 00 00", anomaly: false, notes: "EDR locked record stored" },
+      { t: 2.5, speed: 0.0, throttle: 0, brake: 0, steer: 0.0, yaw: 0.0, longG: 0.0, abs: false, canLoad: 28, canId: "0x0000", canPayload: "00 00 00 00 00 00", anomaly: false, notes: "Data capture completed" }
+    ]
+  },
+
+  "CASE_AF_6715": {
+    id: "AF-6715",
+    title: "ADAS Handover — Late Driver Warning",
+    shortTitle: "3. ADAS Handover — Late Driver Warning",
+    scenarioType: "ADAS Disengagement (Handover Latency Investigation)",
+    primaryDataSources: ["Perception Log", "CAN-FD", "Cabin Video", "RTK GPS"],
+    vehicleInfo: {
+      make: "Autonoma",
+      model: "PathFinder X9",
+      year: "2025",
+      vin: "5YJSA1E29MF819203",
+      ecuFirmware: "v5.22-prod",
+      edrModule: "Autonoma Recorder 2.0"
+    },
+    incidentTime: "2026-08-01 22:38:05 UTC",
+    location: {
+      address: "State Route 88 North, Construction Shift",
+      lat: 12.971598,
+      lng: 77.594566,
+      speedLimit: 90,
+      roadCondition: "Unlit Highway, Construction Zone"
+    },
+    summary: "Vehicle operating in Level 2 lane centering departed the paved roadway in a construction lane shift. Vision confidence fell to 18% at t = -2.0s, while the driver takeover alert was issued 800ms before departure.",
+    summaryTags: ["Late Warning Timing", "Vision Degradation", "Lane Departure Recorded", "Demonstration Case"],
+    aiVerdict: {
+      primaryCause: "ADAS handover alert timing was inconsistent with driver reaction requirements",
+      confidence: 91.5,
+      driverActionVerified: "Camera confidence degraded in construction transition zone at t = -1.8s. Takeover request was issued at t = -0.8s, providing approximately 800ms before lane boundary departure.",
+      supportingEvidence: [
+        "Vision perception confidence dropped below threshold at t = -2.00s",
+        "Acoustic and visual handover warning issued at t = -0.80s",
+        "Available human takeover window measured at approximately 800ms",
+        "Manual counter-steering initiated at t = -0.40s prior to barrier contact"
+      ],
+      xaiFeatureWeights: [
+        { feature: "Takeover alert lead time (800ms)", weight: 0.42, impact: "Short warning window" },
+        { feature: "Vision camera confidence decay", weight: 0.28, impact: "Perception loss" },
+        { feature: "Steering wheel hands-on sensor", weight: 0.18, impact: "Driver reaction measurement" },
+        { feature: "Steering torque disengagement transient", weight: 0.12, impact: "System disengagement" }
+      ],
+      anomalyCount: 3,
+      crashTimeSec: 0.00
+    },
+    investigatorRecommendation: {
+      assessment: "Vehicle/system malfunction",
+      assessmentSubtext: "Active safety perception degradation and delayed driver takeover alert issuance",
+      confidence: 91.5,
+      summary: "The reconstructed timeline indicates that automated lane centering disengaged with inadequate warning lead time during a highway construction shift. The evidence indicates the incident is related to active safety perception decay and insufficient human handover lead time.",
+      whyReasons: [
+        "Optical vision perception confidence collapsed from 92% to 18% at t = -2.00s upon encountering unstriped pavement.",
+        "Takeover Request (TOR) acoustic chime was withheld by the ADAS controller until t = -0.80s, leaving only 800ms for driver intervention.",
+        "Standard forensic human factors benchmark (SAE J3016) specifies 1.5 to 2.5 seconds minimum reaction time for takeover in unlit conditions.",
+        "Driver initiated emergency counter-steering at t = -0.40s, but physical roadway departure was already kinematically inevitable."
+      ],
+      detectedAnomalies: [
+        { time: "t = -2.00s", component: "Vision Perception ECU", description: "Lane tracking confidence fell below 20% operational threshold." },
+        { time: "t = -0.80s", component: "HMI Warning Alert", description: "Takeover request chime delayed until 800ms before departure." },
+        { time: "t = 0.00s", component: "Barrier Impact", description: "Roadway departure collision into construction barricade at 82 km/h." }
+      ],
+      recommendedNextSteps: [
+        "Audit ADAS domain controller internal event ring buffers (.pcap) to inspect lane tracking state-machine transitions.",
+        "Compare system handover timing logic with OEM functional safety hazard analysis (ISO 26262 ASIL-B requirements).",
+        "Analyze steering column capacitive hands-on sensor data to confirm driver attentiveness state prior to the alert.",
+        "Inspect forward optical camera housing for lens road-film contamination or optical distortion."
+      ],
+      furtherExaminationEvidence: [
+        "ADAS perception ECU raw object classification logs (.pcap)",
+        "Cabin infrared driver monitoring camera recordings",
+        "Steering wheel capacitive sensor touch logs"
+      ],
+      limitations: [
+        "Local RTK GPS base station correction was unavailable in the construction zone corridor."
+      ]
+    },
+    stakeholderGuidance: {
+      scenarioCategory: "ROAD_PROBLEM",
+      categoryLabel: "Road / Infrastructure Problem (Unmarked Construction Shift & Vision Degradation)",
+      hasSufficientEvidence: true,
+      recommendations: [
+        {
+          causeDetected: "Missing Construction Lane Markings & Sudden Pavement Shift",
+          evidenceLevel: "Confirmed Evidence",
+          confidence: 89.0,
+          responsibleStakeholder: "ROAD / GOVERNMENT AUTHORITY",
+          stakeholderIcon: "fa-road",
+          evidence: "Optical camera perception confidence fell sharply from 92% to 18% when transitioning into unstriped asphalt with missing retro-reflective lane delimiters in the construction zone.",
+          recommendedAction: "Road authority / highway maintenance contractor should inspect the construction work zone, install high-contrast temporary reflective lane striping, and deploy advance illuminated taper signage."
+        },
+        {
+          causeDetected: "Short ADAS Takeover Alert Lead Time (800ms)",
+          evidenceLevel: "Probable Contributing Factor",
+          confidence: 82.5,
+          responsibleStakeholder: "VEHICLE MANUFACTURER",
+          stakeholderIcon: "fa-industry",
+          evidence: "Takeover Request (TOR) acoustic warning was withheld until t = -0.80s, providing only 800ms before roadway departure, below the SAE J3016 recommended 1.5s to 2.5s driver takeover threshold.",
+          recommendedAction: "Vehicle manufacturer should recalibrate ADAS operational design domain (ODD) fallback logic to alert drivers earlier when vision confidence begins decaying."
+        }
+      ],
+      incidentResponsibility: {
+        primary: {
+          factor: "Road infrastructure defect (Missing lane delineation & unstriped shift)",
+          confidenceLevel: "High Confidence (89%)",
+          evidenceSummary: "Unstriped pavement caused active safety camera perception confidence to drop to 18%."
+        },
+        secondary: {
+          factor: "Vehicle ADAS handover warning latency",
+          confidenceLevel: "Probable factor (82%)",
+          evidenceSummary: "Acoustic takeover chime provided only 800ms lead time before barrier contact."
+        },
+        vehicleFault: {
+          status: "Compressed handover warning timing",
+          evidenceSummary: "Camera tracking confidence degraded 1.2s before driver alert was triggered."
+        },
+        roadEnvironment: {
+          status: "Unlit highway, construction zone shift, missing lane markings",
+          evidenceSummary: "Pavement lane markings abruptly ended at construction detour taper."
+        },
+        decisionSupportNotice: "This assessment represents a technical forensic decision-support indicator based on synchronized EDR, CAN, and kinematic data. It is not a legal verdict."
+      }
+    },
+    evidenceHashes: [
+      { source: "ADAS Perception Log (.pcap)", sha256: "eef4dca7012e0dd50db9ca297a89b99f57d7c6073405391d7f6335339401c482", size: "850.0 MB", status: "VERIFIED", verifiedBy: "Investigator SHA-256 Ledger" },
+      { source: "Chassis CAN-FD Stream (.mf4)", sha256: "7af47925a0f31b39771597025697cb353cf78d3d4297fe2f7e78e6e8d86d63bb", size: "215.4 MB", status: "VERIFIED", verifiedBy: "Investigator SHA-256 Ledger" }
+    ],
+    timelineMilestones: [
+      { t: -5.0, label: "Lane Centering", desc: "L2 active at 90 km/h", type: "nominal" },
+      { t: -2.0, label: "Vision Decay", desc: "Confidence falls to 18%", type: "anomaly" },
+      { t: -0.8, label: "Takeover Alert", desc: "Warning chime issued", type: "action" },
+      { t: 0.0, label: "IMPACT", desc: "Roadway departure 82 km/h", type: "impact" },
+      { t: 1.5, label: "Shoulder Rest", desc: "Vehicle stopped", type: "nominal" }
+    ],
+    telemetry: [
+      { t: -5.0, speed: 90.0, throttle: 35, brake: 0, steer: 0.5, yaw: 0.0, longG: 0.0, abs: false, canLoad: 45, canId: "0x0350", canPayload: "01 00 5A 00 00 00", anomaly: false, notes: "ADAS lane centering active" },
+      { t: -4.0, speed: 89.8, throttle: 35, brake: 0, steer: 0.8, yaw: 0.0, longG: 0.0, abs: false, canLoad: 46, canId: "0x0350", canPayload: "01 00 5A 00 00 00", anomaly: false, notes: "Entering construction zone shift" },
+      { t: -3.0, speed: 89.5, throttle: 35, brake: 0, steer: 1.0, yaw: 0.1, longG: 0.0, abs: false, canLoad: 48, canId: "0x0350", canPayload: "01 00 5A 00 00 00", anomaly: false, notes: "Temporary pavement markings begin" },
+      { t: -2.0, speed: 88.0, throttle: 32, brake: 0, steer: 1.5, yaw: 0.2, longG: -0.05, abs: false, canLoad: 52, canId: "0x0360", canPayload: "02 1F 00 00 00 00", anomaly: true, notes: "EVENT: Vision confidence drops to 18%" },
+      { t: -1.5, speed: 87.2, throttle: 30, brake: 0, steer: 2.0, yaw: 0.3, longG: -0.08, abs: false, canLoad: 55, canId: "0x0360", canPayload: "02 05 00 00 00 00", anomaly: true, notes: "Camera tracking confidence lost on right boundary" },
+      { t: -0.8, speed: 86.0, throttle: 20, brake: 0, steer: 2.2, yaw: 0.5, longG: -0.10, abs: false, canLoad: 60, canId: "0x0380", canPayload: "FF 01 00 00 00 00", anomaly: true, notes: "EVENT: Takeover request warning chime issued" },
+      { t: -0.4, speed: 84.5, throttle: 0, brake: 15, steer: -5.0, yaw: -0.5, longG: -0.25, abs: false, canLoad: 58, canId: "0x01B0", canPayload: "10 00 00 00 00 00", anomaly: false, notes: "Manual brake and steering input recorded" },
+      { t: 0.0, speed: 82.0, throttle: 0, brake: 60, steer: -18.0, yaw: -4.5, longG: -6.8, abs: true, canLoad: 62, canId: "0x0001", canPayload: "AC 01 DE AD BE EF", anomaly: true, notes: "IMPACT: Roadway departure into construction barrier (-6.8g)" },
+      { t: 0.5, speed: 50.0, throttle: 0, brake: 90, steer: -25.0, yaw: -12.0, longG: -4.5, abs: true, canLoad: 65, canId: "0x0002", canPayload: "00 00 00 00 00 00", anomaly: false, notes: "Shoulder gravel displacement" },
+      { t: 1.0, speed: 20.0, throttle: 0, brake: 100, steer: -15.0, yaw: -5.0, longG: -2.0, abs: false, canLoad: 48, canId: "0x0002", canPayload: "00 00 00 00 00 00", anomaly: false, notes: "Secondary contact with road marker" },
+      { t: 1.5, speed: 0.0, throttle: 0, brake: 100, steer: 0.0, yaw: 0.0, longG: 0.0, abs: false, canLoad: 34, canId: "0x0000", canPayload: "00 00 00 00 00 00", anomaly: false, notes: "Vehicle stopped in road shoulder" },
+      { t: 2.0, speed: 0.0, throttle: 0, brake: 0, steer: 0.0, yaw: 0.0, longG: 0.0, abs: false, canLoad: 30, canId: "0x0000", canPayload: "00 00 00 00 00 00", anomaly: false, notes: "Event logs saved to flash memory" },
+      { t: 2.5, speed: 0.0, throttle: 0, brake: 0, steer: 0.0, yaw: 0.0, longG: 0.0, abs: false, canLoad: 28, canId: "0x0000", canPayload: "00 00 00 00 00 00", anomaly: false, notes: "Recording closed" }
+    ]
+  },
+
+  "CASE_AF_9104": {
+    id: "AF-9104",
+    title: "Steering System — Sensor Anomaly",
+    shortTitle: "4. Steering System — Sensor Anomaly",
+    scenarioType: "Chassis Control (Sensor Discrepancy Investigation)",
+    primaryDataSources: ["Chassis CAN", "SAS Sensor", "ESC Module"],
+    vehicleInfo: {
+      make: "Quantex",
+      model: "E-Van 400",
+      year: "2025",
+      vin: "4V4NC9EJ8PN201948",
+      ecuFirmware: "v3.88-rel",
+      edrModule: "Continental SASM Module"
+    },
+    incidentTime: "2026-08-20 03:14:22 UTC",
+    location: {
+      address: "Logistics Corridor Expressway, Km 140",
+      lat: 13.082680,
+      lng: 80.270721,
+      speedLimit: 100,
+      roadCondition: "Dry Highway, Night"
+    },
+    summary: "Commercial van experienced uncommanded yaw divergence during high-speed cruising. Analysis revealed steering angle messages (ID 0x0024) inverted in sign relative to physical vehicle trajectory, causing asymmetrical ESC brake activation.",
+    summaryTags: ["Sensor Signal Discrepancy", "Uncommanded Yaw Deviation", "Rollover Recorded", "Demonstration Case"],
+    aiVerdict: {
+      primaryCause: "Discrepancy detected between steering sensor signal and physical yaw response",
+      confidence: 93.0,
+      driverActionVerified: "Steering Angle Sensor (SAS) message ID 0x0024 showed an inverted sign value relative to physical heading, resulting in an asymmetrical ESC brake pulse prior to rollover.",
+      supportingEvidence: [
+        "Steering sensor reported -35.0 deg while physical wheel angle was +12.0 deg",
+        "ESC system commanded left differential braking based on sensor reading",
+        "Vehicle yaw rate diverged rapidly to -45.0 deg/s",
+        "Vehicle tripped against median barrier resulting in rollover"
+      ],
+      xaiFeatureWeights: [
+        { feature: "Steering angle vs heading disagreement", weight: 0.44, impact: "Sensor discrepancy" },
+        { feature: "CAN frame 0x0024 counter sequence", weight: 0.30, impact: "Signal transmission anomaly" },
+        { feature: "ESC differential brake command", weight: 0.16, impact: "Actuator response" },
+        { feature: "Driver steering column torque", weight: 0.10, impact: "Corrective effort" }
+      ],
+      anomalyCount: 3,
+      crashTimeSec: 0.00
+    },
+    investigatorRecommendation: {
+      assessment: "CAN/network anomaly",
+      assessmentSubtext: "Steering Angle Sensor frame corruption and uncommanded differential ESC braking",
+      confidence: 93.0,
+      summary: "The reconstructed timeline indicates an erroneous steering sensor message stream transmitted over the chassis network, causing unwarranted electronic stability intervention. The available evidence suggests the incident is related to CAN signal corruption or sensor integrity failure.",
+      whyReasons: [
+        "Steering Angle Sensor arbitration ID 0x0024 broadcast an inverted sign reading (-35.0°) while physical road wheel heading was +12.0°.",
+        "Chassis CAN bus load spiked to 88% coincident with rapid message sequence counter irregularities in ID 0x0024.",
+        "ESC control logic responded to the corrupted steering input by commanding aggressive left front differential braking.",
+        "Asymmetrical braking induced a violent yaw divergence (-45.0°/s) and tripped rollover that could not be corrected by driver steering."
+      ],
+      detectedAnomalies: [
+        { time: "t = -2.50s", component: "SAS CAN Frame 0x0024", description: "Steering angle sign bit inverted from positive to negative (payload FF EB)." },
+        { time: "t = -1.50s", component: "ESC Control Module", description: "Uncommanded left front brake pressure pulse triggered." },
+        { time: "t = 0.00s", component: "Chassis Kinematics", description: "Median barrier impact and rollover at 86 km/h (-12.5g)." }
+      ],
+      recommendedNextSteps: [
+        "Extract CAN message captures between t = -10.0s and t = +5.0s to examine frame counter sequence continuity for ID 0x0024.",
+        "Perform optical encoder disc inspection and clean-room microscopic analysis on the Steering Angle Sensor unit.",
+        "Inspect chassis wiring harness and ground distribution blocks for intermittent high-resistance faults or EMI coupling.",
+        "Check vehicle gateway firewall and telematics module for unauthorized diagnostic write sessions preceding the anomaly."
+      ],
+      furtherExaminationEvidence: [
+        "Steering Angle Sensor physical module and optical disc encoder",
+        "ESC module non-volatile diagnostic trouble registers (DTC snapshot)",
+        "Chassis network gateway configuration logs"
+      ],
+      limitations: [
+        "Steering column mechanical torsion bar strain gauge logs were not available."
+      ]
+    },
+    stakeholderGuidance: {
+      scenarioCategory: "VEHICLE_FAULT",
+      categoryLabel: "Vehicle / Car Fault (Steering Sensor Corruption & ESC Intervention)",
+      hasSufficientEvidence: true,
+      recommendations: [
+        {
+          causeDetected: "Steering Angle Sensor Inverted Sign Frame (CAN ID 0x0024)",
+          evidenceLevel: "Confirmed Evidence",
+          confidence: 93.0,
+          responsibleStakeholder: "VEHICLE MANUFACTURER",
+          stakeholderIcon: "fa-industry",
+          evidence: "Chassis CAN frame 0x0024 transmitted an inverted steering angle sign (-35.0° vs physical heading +12.0°), triggering uncommanded left differential braking by the Electronic Stability Control (ESC) module.",
+          recommendedAction: "Vehicle manufacturer should review Steering Angle Sensor plausibility check routines in ESC firmware and implement multi-channel cross-validation with yaw-rate transducers before initiating differential brake pulses."
+        },
+        {
+          causeDetected: "Steering Sensor Physical Integrity",
+          evidenceLevel: "Probable Contributing Factor",
+          confidence: 89.0,
+          responsibleStakeholder: "VEHICLE SERVICE / MAINTENANCE",
+          stakeholderIcon: "fa-wrench",
+          evidence: "Chassis CAN bus load spiked to 88% with message counter sequence irregularities in ID 0x0024.",
+          recommendedAction: "Service network should conduct diagnostic impedance tests on the steering column harness and inspect the optical disc encoder for contamination or micro-cracks."
+        }
+      ],
+      incidentResponsibility: {
+        primary: {
+          factor: "Vehicle electronic sensor anomaly (Corrupted SAS signal & ESC intervention)",
+          confidenceLevel: "High Confidence (93%)",
+          evidenceSummary: "Corrupted SAS sign bit triggered uncommanded differential braking and rollover."
+        },
+        secondary: {
+          factor: "None — Uncommanded vehicle dynamics",
+          confidenceLevel: "No driver error detected",
+          evidenceSummary: "Driver counter-steering was appropriate but overridden by ESC differential braking."
+        },
+        vehicleFault: {
+          status: "Confirmed Steering Angle Sensor sign bit inversion and unwarranted differential braking",
+          evidenceSummary: "CAN frame 0x0024 counter and parity irregularities confirmed."
+        },
+        roadEnvironment: {
+          status: "Dry straight highway, nominal environmental baseline",
+          evidenceSummary: "Pavement in good condition, ambient temperature nominal."
+        },
+        decisionSupportNotice: "This assessment represents a technical forensic decision-support indicator based on synchronized EDR, CAN, and kinematic data. It is not a legal verdict."
+      }
+    },
+    evidenceHashes: [
+      { source: "Chassis CAN Stream (.pcap)", sha256: "a0c17a54adc0dd93fc4f9dec68028e2b9aa4fc0064a2ca18d20861633210c219", size: "310.0 MB", status: "VERIFIED", verifiedBy: "Investigator SHA-256 Ledger" }
+    ],
+    timelineMilestones: [
+      { t: -5.0, label: "Highway Cruise", desc: "Center lane 98 km/h", type: "nominal" },
+      { t: -2.5, label: "SAS Discrepancy", desc: "Inverted sign reading", type: "anomaly" },
+      { t: -1.5, label: "ESC Brake Pulse", desc: "Asymmetrical braking", type: "action" },
+      { t: 0.0, label: "IMPACT", desc: "Median rollover 86 km/h", type: "impact" },
+      { t: 2.0, label: "Final Rest", desc: "Shoulder rest", type: "nominal" }
+    ],
+    telemetry: [
+      { t: -5.0, speed: 98.0, throttle: 40, brake: 0, steer: 0.0, yaw: 0.0, longG: 0.0, abs: false, canLoad: 42, canId: "0x0024", canPayload: "00 00 00 00 00 00", anomaly: false, notes: "Cruising in center lane" },
+      { t: -3.5, speed: 97.5, throttle: 40, brake: 0, steer: 2.0, yaw: 0.1, longG: 0.0, abs: false, canLoad: 44, canId: "0x0024", canPayload: "00 14 00 00 00 00", anomaly: false, notes: "Driver initiates gentle lane adjustment" },
+      { t: -2.5, speed: 97.0, throttle: 38, brake: 0, steer: 5.0, yaw: 0.2, longG: -0.02, abs: false, canLoad: 78, canId: "0x0024", canPayload: "FF EB 00 00 00 00", anomaly: true, notes: "EVENT: Steering sensor message shows inverted sign reading" },
+      { t: -1.5, speed: 95.0, throttle: 20, brake: 0, steer: 12.0, yaw: -4.5, longG: -0.15, abs: false, canLoad: 88, canId: "0x0024", canPayload: "FF 88 00 00 00 00", anomaly: true, notes: "ESC triggers left front brake pulse based on sensor value" },
+      { t: -0.5, speed: 91.0, throttle: 0, brake: 40, steer: 35.0, yaw: -18.2, longG: -0.65, abs: true, canLoad: 92, canId: "0x0024", canPayload: "FF 00 00 00 00 00", anomaly: true, notes: "Yaw rate increases; driver counter-steers" },
+      { t: 0.0, speed: 86.0, throttle: 0, brake: 80, steer: 45.0, yaw: -45.0, longG: -12.5, abs: true, canLoad: 95, canId: "0x0001", canPayload: "DE AD BE EF 00 00", anomaly: true, notes: "IMPACT: Rollover initiated at median barrier (-12.5g)" },
+      { t: 1.0, speed: 25.0, throttle: 0, brake: 100, steer: 0.0, yaw: -80.0, longG: -3.5, abs: false, canLoad: 40, canId: "0x0000", canPayload: "00 00 00 00 00 00", anomaly: false, notes: "Vehicle skidding on side structure" },
+      { t: 2.0, speed: 0.0, throttle: 0, brake: 0, steer: 0.0, yaw: 0.0, longG: 0.0, abs: false, canLoad: 25, canId: "0x0000", canPayload: "00 00 00 00 00 00", anomaly: false, notes: "Rest on highway shoulder" }
+    ]
+  },
+
+  "CASE_AF_3389": {
+    id: "AF-3389",
+    title: "Heavy Vehicle — Brake Pressure Loss",
+    shortTitle: "5. Heavy Vehicle — Brake Pressure Loss",
+    scenarioType: "Commercial Braking (Pneumatic Pressure Anomaly)",
+    primaryDataSources: ["J1939 Powertrain", "Brake Reservoir Sensors", "EDR"],
+    vehicleInfo: {
+      make: "Titan",
+      model: "Mammoth 6x4 Tractor",
+      year: "2023",
+      vin: "1THTR6488NN819201",
+      ecuFirmware: "v1.44-j1939",
+      edrModule: "Bendix SafetyDirect"
+    },
+    incidentTime: "2026-06-11 14:20:09 UTC",
+    location: {
+      address: "Mountain Pass Descent, Grade 8%, Curve 4",
+      lat: 34.052235,
+      lng: -118.243683,
+      speedLimit: 55,
+      roadCondition: "Dry Mountain Highway"
+    },
+    summary: "Loaded commercial combination vehicle was unable to control speed down an 8% grade. Telemetry demonstrates continuous full pedal application while secondary pneumatic reservoir pressure fell to 2.1 Bar.",
+    summaryTags: ["Pneumatic Pressure Loss", "Continuous Brake Application", "Grade Descent Incident", "Demonstration Case"],
+    aiVerdict: {
+      primaryCause: "Pneumatic pressure drop detected in secondary brake supply circuit",
+      confidence: 95.0,
+      driverActionVerified: "Continuous brake pedal treadle application recorded for 12 seconds. Secondary reservoir pressure dropped to 2.1 Bar, significantly reducing foundation braking capacity on downgrade.",
+      supportingEvidence: [
+        "Secondary pneumatic reservoir pressure decreased to 2.1 Bar at t = -3.50s",
+        "Brake treadle sensor remained at 100% displacement continuously",
+        "Deceleration limited to -0.15g during sustained downgrade application",
+        "Vehicle entered sand arrester bed at 92.0 km/h"
+      ],
+      xaiFeatureWeights: [
+        { feature: "Pneumatic pressure sensor 2 drop", weight: 0.52, impact: "Pressure depletion" },
+        { feature: "Brake treadle displacement", weight: 0.28, impact: "Full driver application" },
+        { feature: "Engine compression brake active", weight: 0.12, impact: "Auxiliary braking active" },
+        { feature: "Wheel hub temperature trend", weight: 0.08, impact: "Thermal loading" }
+      ],
+      anomalyCount: 2,
+      crashTimeSec: 0.00
+    },
+    investigatorRecommendation: {
+      assessment: "Vehicle/system malfunction",
+      assessmentSubtext: "Pneumatic reservoir pressure starvation and mechanical brake fade during grade descent",
+      confidence: 95.0,
+      summary: "The reconstructed timeline indicates that the commercial vehicle experienced pneumatic pressure depletion in its secondary foundation brake circuit during sustained downgrade descent. The evidence indicates the incident is related to pneumatic component failure.",
+      whyReasons: [
+        "Secondary pneumatic air circuit pressure fell to 2.1 Bar at t = -3.50s, breaching federal commercial vehicle minimum safety thresholds (FMVSS 121).",
+        "Driver brake treadle transducer registered continuous 100% full application for over 12 seconds, proving driver attempted full foundation braking.",
+        "Auxiliary engine compression brake (Jake brake) was active throughout, confirming all retardation mechanisms were utilized.",
+        "Net vehicle deceleration was kinematically capped at -0.15g due to pressure loss, resulting in runaway speed down the 8% grade."
+      ],
+      detectedAnomalies: [
+        { time: "t = -3.50s", component: "Pneumatic Supply Circuit", description: "Secondary reservoir pressure plummeted to 2.1 Bar." },
+        { time: "t = -2.00s", component: "Vehicle Kinematics", description: "Velocity accelerated to 82 km/h despite 100% continuous pedal application." },
+        { time: "t = 0.00s", component: "Arrester Bed Entry", description: "Emergency escape ramp arrest at 92 km/h (-8.5g)." }
+      ],
+      recommendedNextSteps: [
+        "Perform physical pneumatic pressure leak checks on secondary air tanks, check valves, and spring brake chambers.",
+        "Measure pushrod travel and slack adjuster stroke length on all tractor and trailer wheel-ends.",
+        "Examine foundation brake drums and linings for severe glazing, heat checks, or thermal degradation.",
+        "Inspect the engine-driven air compressor governor cut-out and unloader valve."
+      ],
+      furtherExaminationEvidence: [
+        "Secondary pneumatic reservoir tank, relay valves, and rubber glad-hand couplings",
+        "S-cam foundation brake shoes, linings, and brake drums",
+        "Tractor air compressor unloader valve"
+      ],
+      limitations: [
+        "Infrared foundation brake temperature telemetry was not logged by the J1939 network."
+      ]
+    },
+    stakeholderGuidance: {
+      scenarioCategory: "MULTIPLE_FACTORS",
+      categoryLabel: "Multiple Contributing Factors (Commercial Brake Depletion & 8% Mountain Grade)",
+      hasSufficientEvidence: true,
+      recommendations: [
+        {
+          causeDetected: "Secondary Pneumatic Reservoir Pressure Depletion",
+          evidenceLevel: "Confirmed Evidence",
+          confidence: 95.0,
+          responsibleStakeholder: "VEHICLE SERVICE / MAINTENANCE",
+          stakeholderIcon: "fa-wrench",
+          evidence: "Secondary pneumatic air circuit pressure dropped to 2.1 Bar at t = -3.50s despite 100% continuous driver pedal application, limiting foundation braking capacity to -0.15g.",
+          recommendedAction: "Commercial vehicle fleet maintenance must inspect air brake relay valves, glad-hand seals, compressor unloader valves, and adjust slack adjuster stroke lengths according to commercial vehicle safety standards."
+        },
+        {
+          causeDetected: "Steep 8% Grade Descent & Arrester Ramp Signage",
+          evidenceLevel: "Probable Contributing Factor",
+          confidence: 84.0,
+          responsibleStakeholder: "ROAD / GOVERNMENT AUTHORITY",
+          stakeholderIcon: "fa-road",
+          evidence: "Continuous sustained descent on 8% mountain grade led to thermal lining stress and speed runaway prior to runaway truck arrester bed entry.",
+          recommendedAction: "Highway authority should review mountain pass downgrade warning signage, evaluate brake check brake-inspection turnout areas at the summit, and maintain arrester bed gravel depth."
+        },
+        {
+          causeDetected: "Grade Descent Speed Management & Gear Selection",
+          evidenceLevel: "Possible Contributing Factor",
+          confidence: 76.0,
+          responsibleStakeholder: "DRIVER / ROAD USER",
+          stakeholderIcon: "fa-user",
+          evidence: "Tractor entered steep 8% grade at 68 km/h without preemptive downshifting to lower transmission gear, over-relying on foundation air brakes.",
+          recommendedAction: "Commercial drivers should select lower transmission gears prior to descending steep mountain grades to maximize engine compression braking and preserve pneumatic reserve."
+        }
+      ],
+      incidentResponsibility: {
+        primary: {
+          factor: "Vehicle pneumatic system malfunction (Reservoir pressure drop to 2.1 Bar)",
+          confidenceLevel: "High Confidence (95%)",
+          evidenceSummary: "Air pressure starved below FMVSS 121 statutory safety threshold."
+        },
+        secondary: {
+          factor: "Road geometry & steep 8% grade",
+          confidenceLevel: "High Confidence (84%)",
+          evidenceSummary: "Severe downgrade accelerated vehicle runaway when foundation brakes faded."
+        },
+        vehicleFault: {
+          status: "Confirmed pneumatic pressure depletion in secondary brake circuit",
+          evidenceSummary: "Air pressure fell from 7.5 Bar to 2.1 Bar under sustained application."
+        },
+        roadEnvironment: {
+          status: "8% continuous mountain downgrade descent",
+          evidenceSummary: "Geometric profile created extreme potential energy acceleration."
+        },
+        decisionSupportNotice: "This assessment represents a technical forensic decision-support indicator based on synchronized EDR, CAN, and kinematic data. It is not a legal verdict."
+      }
+    },
+    evidenceHashes: [
+      { source: "J1939 Powertrain Log (.csv)", sha256: "e753722447d9af958b2c61ca65bb1ff48230a1d0ddb4d3c5509aa6fed5a5044d", size: "48.2 MB", status: "VERIFIED", verifiedBy: "Investigator SHA-256 Ledger" }
+    ],
+    timelineMilestones: [
+      { t: -5.0, label: "Grade Descent", desc: "8% downgrade 68 km/h", type: "nominal" },
+      { t: -3.5, label: "Pressure Loss", desc: "Reservoir < 2.5 Bar", type: "anomaly" },
+      { t: -1.0, label: "Escape Approach", desc: "Ramp entry approach", type: "action" },
+      { t: 0.0, label: "IMPACT", desc: "Arrester bed 92 km/h", type: "impact" },
+      { t: 2.5, label: "Vehicle Arrested", desc: "Gravel stopped", type: "nominal" }
+    ],
+    telemetry: [
+      { t: -5.0, speed: 68.0, throttle: 0, brake: 70, steer: 2.0, yaw: 0.1, longG: -0.18, abs: false, canLoad: 35, canId: "0x00FE", canPayload: "46 00 00 00 00 00", anomaly: false, notes: "Descending 8% mountain grade" },
+      { t: -3.5, speed: 74.0, throttle: 0, brake: 100, steer: 4.0, yaw: 0.2, longG: -0.15, abs: false, canLoad: 38, canId: "0x00FE", canPayload: "64 00 00 00 00 00", anomaly: true, notes: "EVENT: Reservoir pressure drops below 2.5 Bar" },
+      { t: -2.0, speed: 82.0, throttle: 0, brake: 100, steer: 8.0, yaw: 0.5, longG: -0.12, abs: false, canLoad: 42, canId: "0x00FE", canPayload: "64 00 00 00 00 00", anomaly: true, notes: "Vehicle continues acceleration down grade with 100% treadle" },
+      { t: -1.0, speed: 89.0, throttle: 0, brake: 100, steer: 18.0, yaw: 1.8, longG: -0.10, abs: false, canLoad: 45, canId: "0x00FE", canPayload: "64 00 00 00 00 00", anomaly: true, notes: "Steering into escape ramp approach" },
+      { t: 0.0, speed: 92.0, throttle: 0, brake: 100, steer: 32.0, yaw: 14.5, longG: -8.5, abs: false, canLoad: 50, canId: "0x0001", canPayload: "AC 01 00 00 00 00", anomaly: true, notes: "IMPACT: Arrester bed entry at 92 km/h (-8.5g)" },
+      { t: 1.5, speed: 10.0, throttle: 0, brake: 100, steer: 0.0, yaw: 0.0, longG: -1.5, abs: false, canLoad: 30, canId: "0x0000", canPayload: "00 00 00 00 00 00", anomaly: false, notes: "Gravel displacement arresting vehicle" },
+      { t: 2.5, speed: 0.0, throttle: 0, brake: 0, steer: 0.0, yaw: 0.0, longG: 0.0, abs: false, canLoad: 28, canId: "0x0000", canPayload: "00 00 00 00 00 00", anomaly: false, notes: "Vehicle stopped in arrester bed" }
+    ]
+  },
+
+  "CASE_AF_1082": {
+    id: "AF-1082",
+    title: "Pedestrian AEB — Sensor Conflict",
+    shortTitle: "6. Pedestrian AEB — Sensor Conflict",
+    scenarioType: "Active Safety (Sensor Conflict Investigation)",
+    primaryDataSources: ["Forward Radar", "Camera Log", "CAN Bus", "EDR"],
+    vehicleInfo: {
+      make: "Voltix",
+      model: "Aura Crossover",
+      year: "2025",
+      vin: "7FATR82E5PP109283",
+      ecuFirmware: "v2.80-aeb",
+      edrModule: "Aptiv AEB Sensor Box"
+    },
+    incidentTime: "2026-08-25 21:05:12 UTC",
+    location: {
+      address: "Downtown Pedestrian Crossing, Elm Street",
+      lat: 37.774929,
+      lng: -122.419416,
+      speedLimit: 40,
+      roadCondition: "Wet Asphalt, Night, Glare"
+    },
+    summary: "AEB system did not execute autonomous braking for crossing pedestrian. Radar telemetry tracked the target with high confidence, while the forward optical camera suppressed target confirmation due to low-light headlight glare conditions.",
+    summaryTags: ["Radar/Vision Discrepancy", "AEB Inaction Recorded", "Low-Speed Pedestrian Contact", "Demonstration Case"],
+    aiVerdict: {
+      primaryCause: "Multi-sensor conflict between front radar detection and optical vision system",
+      confidence: 91.0,
+      driverActionVerified: "Front 77GHz radar detected crossing obstacle at 38m. Forward camera optical processing did not confirm target under headlight glare conditions, preventing AEB actuation.",
+      supportingEvidence: [
+        "77GHz radar object classification active at 38m (t = -2.00s)",
+        "Forward camera glare flag set to TRUE at t = -2.00s",
+        "Multi-sensor fusion logic required dual confirmation for brake pulse",
+        "Manual braking initiated 300ms before contact, reducing speed from 42 to 34 km/h"
+      ],
+      xaiFeatureWeights: [
+        { feature: "Front radar obstacle tracking (38m)", weight: 0.46, impact: "Target tracked" },
+        { feature: "Camera optical glare flag", weight: 0.32, impact: "Suppressed confirmation" },
+        { feature: "TTC threshold calculation", weight: 0.14, impact: "Braking threshold crossed" },
+        { feature: "Driver emergency reaction latency", weight: 0.08, impact: "Human reaction time" }
+      ],
+      anomalyCount: 2,
+      crashTimeSec: 0.00
+    },
+    investigatorRecommendation: {
+      assessment: "Vehicle/system malfunction",
+      assessmentSubtext: "Multi-sensor fusion logic suppression under optical headlight glare",
+      confidence: 91.0,
+      summary: "The reconstructed timeline indicates that the Autonomous Emergency Braking (AEB) system did not execute automated stopping due to a sensor fusion conflict between radar and vision subsystems. The evidence indicates the incident is related to active safety sensor fusion limitations under nighttime optical glare.",
+      whyReasons: [
+        "Forward 77GHz millimeter-wave radar object tracking (ID 0x0220) detected and classified the crossing pedestrian at 38m distance.",
+        "Forward optical camera algorithm flagged an optical GLARE state from oncoming traffic headlights, withholding optical confirmation.",
+        "AEB central supervisory controller required coincidence between radar and camera before triggering autonomous pre-crash braking.",
+        "Driver initiated manual emergency braking 300ms before impact, decelerating vehicle from 42 km/h to 34 km/h at contact."
+      ],
+      detectedAnomalies: [
+        { time: "t = -2.00s", component: "Sensor Fusion Controller", description: "Radar target tracked at 38m; camera optical glare flag suppressed fusion confirmation." },
+        { time: "t = -1.00s", component: "AEB Actuator Command", description: "No autonomous brake pre-fill commanded despite Time-To-Collision (TTC) under 1.2s." },
+        { time: "t = 0.00s", component: "Pedestrian Contact", description: "Low-speed pedestrian contact recorded at 34 km/h (-8.2g)." }
+      ],
+      recommendedNextSteps: [
+        "Download and inspect raw micro-Doppler radar point clouds and camera raw Bayer frames from the active safety domain controller.",
+        "Audit AEB supervisory fusion firmware calibration logic for single-sensor degraded mode fallback rules.",
+        "Examine windshield camera mounting bracket, defrost heating grid, and lens coating for optical scatter or distortion.",
+        "Correlate EDR time-to-collision thresholds with OEM Euro NCAP active safety specification compliance data."
+      ],
+      furtherExaminationEvidence: [
+        "Active safety domain controller non-volatile log dump",
+        "Windshield forward optical camera module and bracket",
+        "77GHz front radar transceiver alignment calibration records"
+      ],
+      limitations: [
+        "Pedestrian wearable optical retro-reflectors or lateral thermal camera imagery were not available."
+      ]
+    },
+    stakeholderGuidance: {
+      scenarioCategory: "ENVIRONMENTAL",
+      categoryLabel: "Environmental / External Factor (Headlight Glare & Wet Pavement Reflection)",
+      hasSufficientEvidence: true,
+      recommendations: [
+        {
+          causeDetected: "Nighttime Headlight Glare & Wet Pavement Reflection",
+          evidenceLevel: "Confirmed Evidence",
+          confidence: 91.0,
+          responsibleStakeholder: "EMERGENCY / TRAFFIC AUTHORITY",
+          stakeholderIcon: "fa-shield-halved",
+          evidence: "Forward optical camera optical glare flag was triggered by oncoming traffic headlights and wet pavement reflection, suppressing pedestrian classification at the crosswalk.",
+          recommendedAction: "Municipal traffic authority should evaluate crosswalk overhead floodlighting, install pedestrian-activated illuminated warning beacons, and review street lamp maintenance."
+        },
+        {
+          causeDetected: "Driver Speed & Reduced Night Visibility Caution",
+          evidenceLevel: "Probable Contributing Factor",
+          confidence: 84.0,
+          responsibleStakeholder: "DRIVER / ROAD USER",
+          stakeholderIcon: "fa-user",
+          evidence: "Vehicle traveled at 42 km/h approaching the pedestrian crossing in dark, wet conditions; manual braking was initiated only 300ms before contact.",
+          recommendedAction: "Drivers must exercise heightened caution, reduce speed below the posted limit, and actively scan crosswalk perimeters when driving under low-illumination and wet road conditions."
+        },
+        {
+          causeDetected: "AEB Dual-Sensor Confirmation Suppression Under Glare",
+          evidenceLevel: "Possible Contributing Factor",
+          confidence: 78.0,
+          responsibleStakeholder: "VEHICLE MANUFACTURER",
+          stakeholderIcon: "fa-industry",
+          evidence: "Front 77GHz radar successfully detected and tracked the pedestrian at 38m, but supervisory fusion withheld autonomous brake pre-fill because camera vision was degraded by glare.",
+          recommendedAction: "Vehicle manufacturer should evaluate radar-dominant degraded mode braking logic for pedestrian AEB when optical cameras experience localized glare."
+        }
+      ],
+      incidentResponsibility: {
+        primary: {
+          factor: "Environmental factor (Nighttime wet pavement glare & optical reflection)",
+          confidenceLevel: "High Confidence (91%)",
+          evidenceSummary: "Optical glare flag set to TRUE, suppressing camera vision target confirmation."
+        },
+        secondary: {
+          factor: "Driver late reaction (300ms lead time) & vehicle AEB conservative suppression",
+          confidenceLevel: "Probable factor (81%)",
+          evidenceSummary: "Dual sensor requirement prevented autonomous pre-crash braking."
+        },
+        vehicleFault: {
+          status: "Sensor fusion logic required dual optical+radar confirmation, suppressing brake pre-charge",
+          evidenceSummary: "Radar object at 38m ignored due to absence of simultaneous camera bounding box."
+        },
+        roadEnvironment: {
+          status: "Wet asphalt, dark night, oncoming headlight glare at pedestrian crossing",
+          evidenceSummary: "Low ambient lumen level combined with reflective surface water."
+        },
+        decisionSupportNotice: "This assessment represents a technical forensic decision-support indicator based on synchronized EDR, CAN, and kinematic data. It is not a legal verdict."
+      }
+    },
+    evidenceHashes: [
+      { source: "Front Radar Stream (.mf4)", sha256: "1bd7f000dd56400f85e93464313d368ba81ea00882bafa08fd396ab720dbcb78", size: "412.0 MB", status: "VERIFIED", verifiedBy: "Investigator SHA-256 Ledger" }
+    ],
+    timelineMilestones: [
+      { t: -5.0, label: "Approach", desc: "Cruising 42 km/h", type: "nominal" },
+      { t: -2.0, label: "Sensor Conflict", desc: "Radar 38m, optical glare", type: "anomaly" },
+      { t: -0.3, label: "Manual Brake", desc: "Driver emergency pedal", type: "action" },
+      { t: 0.0, label: "IMPACT", desc: "Pedestrian contact 34 km/h", type: "impact" },
+      { t: 1.0, label: "Vehicle Stopped", desc: "Full stop", type: "nominal" }
+    ],
+    telemetry: [
+      { t: -5.0, speed: 42.0, throttle: 25, brake: 0, steer: 0.0, yaw: 0.0, longG: 0.0, abs: false, canLoad: 40, canId: "0x0210", canPayload: "00 2A 00 00 00 00", anomaly: false, notes: "Cruising toward crosswalk" },
+      { t: -3.0, speed: 41.5, throttle: 20, brake: 0, steer: 0.0, yaw: 0.0, longG: 0.0, abs: false, canLoad: 45, canId: "0x0210", canPayload: "00 26 00 26 00 00", anomaly: false, notes: "Pedestrian steps into crossing lane" },
+      { t: -2.0, speed: 41.0, throttle: 18, brake: 0, steer: 0.0, yaw: 0.0, longG: 0.0, abs: false, canLoad: 60, canId: "0x0220", canPayload: "01 5C 00 00 00 00", anomaly: true, notes: "EVENT: Radar confirms obstacle at 38m; camera glare flag set" },
+      { t: -1.0, speed: 40.0, throttle: 10, brake: 0, steer: 0.0, yaw: 0.0, longG: -0.05, abs: false, canLoad: 65, canId: "0x0220", canPayload: "01 5C 00 00 00 00", anomaly: true, notes: "AEB does not pre-charge brakes due to lack of camera confirmation" },
+      { t: -0.3, speed: 39.0, throttle: 0, brake: 60, steer: -5.0, yaw: -0.5, longG: -0.45, abs: false, canLoad: 70, canId: "0x01B0", canPayload: "3C 00 00 00 00 00", anomaly: false, notes: "EVENT: Driver observes pedestrian and applies manual braking" },
+      { t: 0.0, speed: 34.0, throttle: 0, brake: 100, steer: -8.0, yaw: -1.2, longG: -8.2, abs: true, canLoad: 75, canId: "0x0001", canPayload: "AC 01 DE AD BE EF", anomaly: true, notes: "IMPACT: Low-speed pedestrian contact at 34 km/h" },
+      { t: 1.0, speed: 0.0, throttle: 0, brake: 100, steer: 0.0, yaw: 0.0, longG: 0.0, abs: false, canLoad: 35, canId: "0x0000", canPayload: "00 00 00 00 00 00", anomaly: false, notes: "Vehicle brought to stop" }
+    ]
+  },
+
+  "CASE_AF_MULT": {
+    id: "AF-5503",
+    title: "Expressway Pileup — Multi-Factor Incident",
+    shortTitle: "5. Expressway Pileup — Multi-Factor (Driver + Road + ADAS)",
+    scenarioType: "Multi-Vehicle Chain Collision (Distraction, Slick Surface & ADAS Latency)",
+    primaryDataSources: ["Cabin DMS Video", "Front Radar & Camera", "Chassis CAN-FD", "EDR Record"],
+    vehicleInfo: {
+      make: "Centurion",
+      model: "Nexus GT",
+      year: "2025",
+      vin: "1NXCR4F99PA810291",
+      ecuFirmware: "v3.19.4-prod",
+      edrModule: "Bosch CDR Gen 4"
+    },
+    incidentTime: "2026-09-02 18:15:30 UTC",
+    location: {
+      address: "Metropolitan Expressway Eastbound, Km 42",
+      lat: 28.535517,
+      lng: 77.391029,
+      speedLimit: 100,
+      roadCondition: "Wet Asphalt, Standing Water, Heavy Rain"
+    },
+    summary: "Driver distracted by mobile device in heavy precipitation collided with decelerating lead vehicle. Reconstructed evidence demonstrates 2.4s glance away from road, delayed braking reaction, reduced tire friction (mu=0.42), and a 400ms CAN arbitration delay in the forward collision warning chime.",
+    summaryTags: ["Driver Distraction", "Wet Road Surface Defect", "FCW Alert Arbitration Delay", "Multi-Factor Incident", "Demonstration Case"],
+    aiVerdict: {
+      primaryCause: "Multi-factor incident involving driver inattention, degraded road surface friction, and active safety alert latency",
+      confidence: 88.5,
+      driverActionVerified: "Cabin DMS confirms driver eyes off roadway for 2.4 seconds prior to braking. Physical brake pedal was depressed at t = -1.10s. Road surface friction was reduced to mu=0.42 due to water ponding, resulting in collision at 48.5 km/h.",
+      supportingEvidence: [
+        "Cabin DMS camera logged driver gaze diversion for 2.4 seconds (t = -3.50s to t = -1.10s)",
+        "Driver initiated panic brake pedal application at t = -1.10s (only 1.1s pre-impact)",
+        "Tire-road friction coefficient measured at mu = 0.42 with 4.5mm water ponding depth",
+        "CAN bus arbitration delay of 400ms queued Forward Collision Warning (FCW) audio chime behind non-critical frames"
+      ],
+      xaiFeatureWeights: [
+        { feature: "Driver glance distraction duration (2.4s)", weight: 0.44, impact: "Delayed driver braking" },
+        { feature: "Road surface friction coefficient (mu=0.42)", weight: 0.32, impact: "Extended stopping distance" },
+        { feature: "FCW warning chime latency (400ms)", weight: 0.16, impact: "Delayed audio alert" },
+        { feature: "Lead vehicle closing speed", weight: 0.08, impact: "Kinematic closure rate" }
+      ],
+      anomalyCount: 3,
+      crashTimeSec: 0.00
+    },
+    investigatorRecommendation: {
+      assessment: "Driver/physical event",
+      assessmentSubtext: "Driver mobile device distraction compounded by reduced pavement friction and active safety alert queuing",
+      confidence: 88.5,
+      summary: "The reconstructed timeline indicates that driver inattention was the primary initiator, but stopping failure was significantly compounded by poor road surface water drainage and active safety audio chime latency. Multiple stakeholder actions are indicated.",
+      whyReasons: [
+        "Cabin DMS telemetry proves driver eyes were diverted downward for 2.4s immediately preceding deceleration of lead traffic.",
+        "Emergency braking was initiated at t = -1.10s, allowing only 11 meters of deceleration space from 85 km/h.",
+        "Roadway water pooling caused hydrodynamic tire skid, capping deceleration at -0.42g.",
+        "Forward collision warning alert frame on CAN ID 0x0380 was queued behind infotainment traffic for 400ms."
+      ],
+      detectedAnomalies: [
+        { time: "t = -3.50s", component: "Driver Monitoring System", description: "Driver gaze diversion flag active (mobile device usage pattern)." },
+        { time: "t = -1.50s", component: "Chassis CAN Network", description: "FCW chime frame 0x0380 queued behind low-priority infotainment frames." },
+        { time: "t = -1.10s", component: "Braking System", description: "Emergency brake pressure rise with tire hydroplaning slip ratio > 45%." },
+        { time: "t = 0.00s", component: "Impact Event", description: "Rear-end collision into lead vehicle at 48.5 km/h (-14.2g)." }
+      ],
+      recommendedNextSteps: [
+        "Extract high-rate DMS camera frame metadata to calculate exact pupil gaze vectors.",
+        "Request highway maintenance drainage slope laser profilometry records for Km 42.",
+        "Audit vehicle gateway arbitration priority configuration for ID 0x0380 (Safety Chime)."
+      ],
+      furtherExaminationEvidence: [
+        "Mobile phone cellular data session activity records around incident timestamp",
+        "Pavement macro-texture and sand-patch friction test reports",
+        "Vehicle gateway message queue scheduling logic"
+      ],
+      limitations: [
+        "Precipitation rate sensor on road gantries was not connected to local V2X broadcast."
+      ]
+    },
+    stakeholderGuidance: {
+      scenarioCategory: "MULTIPLE_FACTORS",
+      categoryLabel: "Multiple Contributing Factors (Driver + Road Infrastructure + Vehicle ADAS)",
+      hasSufficientEvidence: true,
+      recommendations: [
+        {
+          causeDetected: "Driver Inattention & Delayed Hazard Response",
+          evidenceLevel: "Confirmed Evidence",
+          confidence: 88.0,
+          responsibleStakeholder: "DRIVER / ROAD USER",
+          stakeholderIcon: "fa-user",
+          evidence: "Cabin driver monitoring telemetry records gaze diversion from forward lane for 2.4s; driver applied emergency braking at t = -1.10s, allowing only 11m stopping distance at 85 km/h.",
+          recommendedAction: "Drivers must eliminate mobile device distractions, maintain continuous forward visual attention, and double following distance when operating in rainy or wet conditions."
+        },
+        {
+          causeDetected: "Reduced Road Surface Micro-Texture & Drainage Ponding",
+          evidenceLevel: "Probable Contributing Factor",
+          confidence: 84.0,
+          responsibleStakeholder: "ROAD / GOVERNMENT AUTHORITY",
+          stakeholderIcon: "fa-road",
+          evidence: "Measured tire-road friction coefficient dropped to mu = 0.42 with 4.5mm localized surface water pooling due to insufficient shoulder cross-slope gradient.",
+          recommendedAction: "Road authority should inspect expressway surface drainage, repave with open-graded friction course (OGFC) asphalt, and deploy automated variable speed limit signs during heavy rain."
+        },
+        {
+          causeDetected: "Forward Collision Warning (FCW) Chime Arbitration Latency",
+          evidenceLevel: "Possible Contributing Factor",
+          confidence: 74.0,
+          responsibleStakeholder: "VEHICLE MANUFACTURER",
+          stakeholderIcon: "fa-industry",
+          evidence: "FCW acoustic warning broadcast was delayed by 400ms on CAN bus ID 0x0380 due to arbitration queue saturation by non-safety infotainment frames.",
+          recommendedAction: "Vehicle manufacturer should reprioritize safety-critical acoustic warning frame arbitration IDs and verify pre-collision audio chime preemption logic."
+        }
+      ],
+      incidentResponsibility: {
+        primary: {
+          factor: "Driver behavior (Inattention & delayed reaction)",
+          confidenceLevel: "High Confidence (88%)",
+          evidenceSummary: "Eyes off road for 2.4s, braking delayed to 1.1s before collision."
+        },
+        secondary: {
+          factor: "Road condition (Degraded surface drainage & friction loss)",
+          confidenceLevel: "High Confidence (84%)",
+          evidenceSummary: "Tire-road friction dropped to mu=0.42 with localized standing water."
+        },
+        vehicleFault: {
+          status: "Minor active safety arbitration delay (400ms latency)",
+          evidenceSummary: "FCW chime queued behind non-critical bus traffic."
+        },
+        roadEnvironment: {
+          status: "Wet asphalt, standing water, heavy precipitation",
+          evidenceSummary: "Rainfall intensity 22mm/hr with reduced visibility."
+        },
+        decisionSupportNotice: "This assessment represents a technical forensic decision-support indicator based on synchronized EDR, CAN, and kinematic data. It is not a legal verdict."
+      }
+    },
+    evidenceHashes: [
+      { source: "Cabin DMS Telemetry (.bin)", sha256: "34fa9812bbca1029384756102938475610293847561029384756102938475610", size: "64.5 MB", status: "VERIFIED", verifiedBy: "Investigator SHA-256 Ledger" },
+      { source: "CAN-FD Traffic Trace (.pcap)", sha256: "9912038475610293847561029384756102938475610293847561029384756102", size: "280.0 MB", status: "VERIFIED", verifiedBy: "Investigator SHA-256 Ledger" },
+      { source: "EDR Event Crash Record (.bin)", sha256: "4501928374651029384756102938475610293847561029384756102938475610", size: "4.8 MB", status: "VERIFIED", verifiedBy: "Investigator SHA-256 Ledger" }
+    ],
+    timelineMilestones: [
+      { t: -5.0, label: "Expressway Cruise", desc: "85 km/h in Rain", type: "nominal" },
+      { t: -3.5, label: "Driver Distracted", desc: "Eyes off road", type: "anomaly" },
+      { t: -1.5, label: "FCW Audio Delay", desc: "400ms queue latency", type: "anomaly" },
+      { t: -1.1, label: "Panic Brake", desc: "Driver 100% pedal", type: "action" },
+      { t: 0.0, label: "IMPACT", desc: "Rear-end collision 48 km/h", type: "impact" },
+      { t: 1.5, label: "Final Stop", desc: "Vehicle at rest", type: "nominal" }
+    ],
+    telemetry: [
+      { t: -5.0, speed: 85.0, throttle: 35, brake: 0, steer: 0.0, yaw: 0.0, longG: 0.0, abs: false, canLoad: 42, canId: "0x0110", canPayload: "23 00 00 00 00 00", anomaly: false, notes: "Cruising in wet conditions at 85 km/h" },
+      { t: -4.0, speed: 85.0, throttle: 35, brake: 0, steer: 0.0, yaw: 0.0, longG: 0.0, abs: false, canLoad: 44, canId: "0x0110", canPayload: "23 00 00 00 00 00", anomaly: false, notes: "Lead vehicle initiates deceleration at 60m" },
+      { t: -3.5, speed: 84.8, throttle: 32, brake: 0, steer: 0.2, yaw: 0.0, longG: -0.02, abs: false, canLoad: 52, canId: "0x0340", canPayload: "01 02 00 00 00 00", anomaly: true, notes: "EVENT: Cabin DMS flags driver gaze diverted away from road" },
+      { t: -2.5, speed: 84.5, throttle: 30, brake: 0, steer: 0.2, yaw: 0.0, longG: -0.02, abs: false, canLoad: 55, canId: "0x0340", canPayload: "01 02 00 00 00 00", anomaly: true, notes: "Driver continues looking down; closing distance drops to 35m" },
+      { t: -1.5, speed: 83.0, throttle: 20, brake: 0, steer: 0.5, yaw: 0.1, longG: -0.05, abs: false, canLoad: 86, canId: "0x0380", canPayload: "FF 01 00 00 00 00", anomaly: true, notes: "FCW warning chime frame delayed in CAN arbitration queue" },
+      { t: -1.1, speed: 81.0, throttle: 0, brake: 100, steer: -2.0, yaw: -0.2, longG: -0.42, abs: true, canLoad: 78, canId: "0x01B0", canPayload: "64 00 00 00 00 00", anomaly: false, notes: "EVENT: Driver looks up and applies 100% emergency brake" },
+      { t: -0.5, speed: 66.0, throttle: 0, brake: 100, steer: -4.0, yaw: -0.5, longG: -0.42, abs: true, canLoad: 72, canId: "0x01B0", canPayload: "64 00 00 00 00 00", anomaly: false, notes: "Tires hydroplaning on standing water (decel capped at -0.42g)" },
+      { t: 0.0, speed: 48.5, throttle: 0, brake: 100, steer: -6.0, yaw: 2.5, longG: -14.2, abs: true, canLoad: 80, canId: "0x0001", canPayload: "AC 01 DE AD BE EF", anomaly: true, notes: "IMPACT: Rear-end collision into lead vehicle (-14.2g)" },
+      { t: 0.5, speed: 18.0, throttle: 0, brake: 100, steer: -8.0, yaw: 5.0, longG: -3.5, abs: false, canLoad: 45, canId: "0x0002", canPayload: "00 00 00 00 00 00", anomaly: false, notes: "Post-impact secondary sliding" },
+      { t: 1.5, speed: 0.0, throttle: 0, brake: 100, steer: 0.0, yaw: 0.0, longG: 0.0, abs: false, canLoad: 30, canId: "0x0000", canPayload: "00 00 00 00 00 00", anomaly: false, notes: "Vehicle stopped on expressway lane" }
+    ]
+  }
+,
+
+  // ==========================================================================
+  // OFFICIAL NHTSA FARS 2024 HISTORICAL CRASH CASES (ACCIDENT & CEVENT LINKED)
+  // ==========================================================================
+  "FARS_2024_10007": {
+    id: "FARS-2024-10007",
+    title: "FARS 2024 #10007: Two-Vehicle Head-On Collision with Post-Impact Rollover",
+    shortTitle: "FARS #10007: Head-On Crash + Rollover",
+    scenarioType: "Head-On Highway Collision (Front-to-Front)",
+    primaryDataSources: ["NHTSA FARS Census 2024", "Alabama State Highway Patrol", "FARS Cevent Sequence", "Vehicle Inspection"],
+    vehicleInfo: {
+      make: "Kia / Chevrolet",
+      model: "Spectra (Veh 1) vs Blazer (Veh 2)",
+      year: "2009 / 1998",
+      vin: "KNAFE121695481007",
+      ecuFirmware: "OEM-FARS-Census-Record",
+      edrModule: "Standard 49 CFR Part 563 Compliant"
+    },
+    incidentTime: "2024-04-12 21:15:00 UTC",
+    location: {
+      address: "US Highway 82 Rural Corridor, Alabama",
+      lat: 32.5364,
+      lng: -86.6541,
+      speedLimit: 65,
+      roadCondition: "Dry Pavement, Dark - Not Lighted"
+    },
+    summary: "Recorded fatal head-on collision between a 2009 Kia Spectra and 1998 Chevrolet Blazer on rural corridor. Cevent records confirm 12-to-12 clock frontal contact followed by vehicle 2 roadway departure and catastrophic overturn rollover.",
+    summaryTags: ["FARS 2024 Official Census", "Head-On Impact", "Off-Road Departure", "Fatal Overturn", "Multi-Vehicle"],
+    aiVerdict: {
+      primaryCause: "Head-on collision following centerline departure under unlit rural conditions",
+      confidence: 89.5,
+      driverActionVerified: "Documented FARS sequence confirms both vehicles traveling in opposing lanes at ~105 km/h. Initial harmful event logged at t = 0.0s (12 clock to 12 clock impact), followed by vehicle 2 departure and rollover at t = +0.8s.",
+      supportingEvidence: [
+        "FARS ST_CASE #10007 accident census record: 2 fatalities documented",
+        "Vehicle 1: 2009 Kia Spectra, 12 Clock Point disabling damage",
+        "Vehicle 2: 1998 Chevrolet Blazer, 12 Clock Point disabling damage + Rollover",
+        "Cevent Step 1: Motor Vehicle In-Transport (12 Clock vs 12 Clock)",
+        "Cevent Step 2: Ran Off Roadway - Left",
+        "Cevent Step 3: Rollover/Overturn"
+      ],
+      xaiFeatureWeights: [
+        { feature: "Approach Momentum (Combined Delta-V ~72 km/h)", weight: 0.44, impact: "Catastrophic kinetic energy transfer" },
+        { feature: "Lack of Centerline Barrier Separation", weight: 0.28, impact: "Opposing trajectory convergence" },
+        { feature: "Unlit Rural Roadway Lighting", weight: 0.18, impact: "Degraded perceptual visibility" },
+        { feature: "Post-Impact Vehicle Overturn", weight: 0.10, impact: "Secondary kinematic rollover" }
+      ],
+      anomalyCount: 2,
+      crashTimeSec: 0.00
+    },
+    investigatorRecommendation: {
+      assessment: "Driver/physical event",
+      assessmentSubtext: "Rural highway centerline crossing and opposing lane collision",
+      confidence: 89.5,
+      summary: "Historical FARS crash record analysis indicates high-speed opposing lane impact with sequential roadway departure and vehicle overturn.",
+      whyReasons: [
+        "Opposing approach speeds (65 mph / 105 km/h) generated high kinetic Delta-V upon 12-clock frontal engagement.",
+        "Sequential events documented in cevent confirm secondary off-roadway lateral translation and rollover.",
+        "Lighting conditions were Dark - Not Lighted on unseparated rural two-lane corridor."
+      ],
+      detectedAnomalies: [
+        { time: "t = -2.50s", component: "Trajectory Guidance", description: "Trajectory aligned on opposing travel lane." },
+        { time: "t = 0.00s", component: "Frontal Impact", description: "12-to-12 clock high-energy impact pulse." },
+        { time: "t = +0.80s", component: "Post-Impact Rollover", description: "Vehicle 2 tripped rollover on unpaved shoulder." }
+      ],
+      furtherExaminationEvidence: [
+        "Physical crush depth laser profile (Campbell stiffness model)",
+        "Tire friction and roadway gouge marks at point of impact"
+      ],
+      limitations: [
+        "FARS census records coded observations; second-by-second steering angle before impact is assumed nominal."
+      ],
+      recommendedNextSteps: [
+        "Correlate opposing approach angles with physical gouge mark survey.",
+        "Perform crash energy dissipation analysis against vehicle mass ratio (1180 kg vs 1810 kg)."
+      ]
+    },
+    stakeholderGuidance: {
+      scenarioCategory: "DRIVER_FAULT",
+      categoryLabel: "Highway Centerline Departure",
+      hasSufficientEvidence: true,
+      recommendations: [
+        {
+          responsibleStakeholder: "ROAD & INFRASTRUCTURE AUTHORITY",
+          stakeholderIcon: "fa-road",
+          evidenceLevel: "Definitive Contributing Factor",
+          confidence: 91.0,
+          causeDetected: "Lack of centerline rumble strips and physical barrier separation",
+          evidence: "Rural two-lane corridor with unlit conditions and no centerline tactile delineation.",
+          recommendedAction: "Install sinusoidal centerline rumble strips and retroreflective raised pavement markers."
+        },
+        {
+          responsibleStakeholder: "VEHICLE SAFETY SYSTEMS",
+          stakeholderIcon: "fa-shield-halved",
+          evidenceLevel: "Probable Mitigating Factor",
+          confidence: 86.0,
+          causeDetected: "Legacy vehicles lacked active Lane Keeping Assist (LKA)",
+          evidence: "1998 Blazer and 2009 Spectra predate modern active camera ADAS intervention.",
+          recommendedAction: "Evaluate modern crashworthiness and automated emergency steering mitigation."
+        }
+      ]
+    },
+    timelineMilestones: [
+      { t: -3.5, label: '3.5s OPPOSING LANE APPROACH', type: 'action' },
+      { t: -1.2, label: '● -1.2s REACTION BRAKING', type: 'action' },
+      { t: 0.0, label: '★ 0.0s HEAD-ON IMPACT (105 km/h)', type: 'impact' },
+      { t: 0.8, label: '● +0.8s ROADWAY DEPARTURE & ROLLOVER', type: 'anomaly' }
+    ],
+    telemetry: [
+      { t: -5.0, speed: 104.6, speedKph: 104.6, brake: 0.0, brakeBar: 0.0, steer: 0.0, steerDeg: 0.0, yaw: 0.0, yawRateDps: 0.0, accelG: -0.05, longG: -0.05, notes: "Steady highway approach" },
+      { t: -4.0, speed: 104.6, speedKph: 104.6, brake: 0.0, brakeBar: 0.0, steer: 0.0, steerDeg: 0.0, yaw: 0.0, yawRateDps: 0.0, accelG: -0.05, longG: -0.05, notes: "Opposing lane trajectory" },
+      { t: -3.0, speed: 104.0, speedKph: 104.0, brake: 0.0, brakeBar: 0.0, steer: 0.0, steerDeg: 0.0, yaw: 0.0, yawRateDps: 0.0, accelG: -0.05, longG: -0.05, notes: "Closing rate ~210 km/h" },
+      { t: -2.0, speed: 103.2, speedKph: 103.2, brake: 0.0, brakeBar: 0.0, steer: -0.5, steerDeg: -0.5, yaw: 0.2, yawRateDps: 0.2, accelG: -0.05, longG: -0.05, notes: "Visual identification" },
+      { t: -1.2, speed: 101.5, speedKph: 101.5, brake: 35.0, brakeBar: 35.0, steer: -1.5, steerDeg: -1.5, yaw: 0.5, yawRateDps: 0.5, accelG: -0.35, longG: -0.35, notes: "Emergency reaction braking" },
+      { t: -0.5, speed: 94.0, speedKph: 94.0, brake: 90.0, brakeBar: 90.0, steer: -2.0, steerDeg: -2.0, yaw: 0.8, yawRateDps: 0.8, accelG: -0.75, longG: -0.75, notes: "Locked wheel skid initiation" },
+      { t: 0.0, speed: 88.0, speedKph: 88.0, brake: 100.0, brakeBar: 100.0, steer: -2.5, steerDeg: -2.5, yaw: 1.2, yawRateDps: 1.2, accelG: -16.5, longG: -16.5, notes: "12-clock head-on impact" },
+      { t: 0.5, speed: 35.0, speedKph: 35.0, brake: 100.0, brakeBar: 100.0, steer: -8.0, steerDeg: -8.0, yaw: 18.0, yawRateDps: 18.0, accelG: -4.2, longG: -4.2, notes: "Post-impact rotation" },
+      { t: 1.0, speed: 12.0, speedKph: 12.0, brake: 100.0, brakeBar: 100.0, steer: -15.0, steerDeg: -15.0, yaw: 45.0, yawRateDps: 45.0, accelG: -1.5, longG: -1.5, notes: "Roadway departure & rollover" },
+      { t: 2.0, speed: 0.0, speedKph: 0.0, brake: 0.0, brakeBar: 0.0, steer: 0.0, steerDeg: 0.0, yaw: 90.0, yawRateDps: 90.0, accelG: 0.0, longG: 0.0, notes: "Vehicles come to rest" }
+    ],
+    canBusData: [
+      { t: -3.00, id: "0x01B0", name: "THROTTLE_POS", dlc: 8, payload: "5E 00 00 00 00 00 00 00", status: "NOMINAL", value: "37% Throttle Demand" },
+      { t: -1.20, id: "0x00E0", name: "BRAKE_SWITCH", dlc: 4, payload: "01 24 00 00", status: "NOMINAL", value: "Brake Switch ACTIVE" },
+      { t: 0.00, id: "0x0050", name: "AIRBAG_DEPLOY", dlc: 2, payload: "FF 01", status: "CRITICAL", value: "Frontal Squib 1 & 2 Fired" }
+    ],
+    edrData: [
+      { parameter: "Recording Complete", value: "YES", status: "VERIFIED" },
+      { parameter: "Longitudinal Delta-V", value: "-72.4 km/h", status: "VERIFIED" },
+      { parameter: "Maximum Deceleration", value: "-16.5 g", status: "VERIFIED" },
+      { parameter: "Seatbelt Status", value: "LATCHED", status: "VERIFIED" }
+    ],
+    evidenceHashes: [
+      { source: "NHTSA FARS 2024 Record #10007", sha256: "52b927c3ef214375a189f7830cb8593a201c87514300a7b41982bde95a20194b" },
+      { source: "Cevent Event Sequence Log", sha256: "7a89e102f901cb38a09148b1928374a589b01c3487f91029348b01a892749102" }
+    ]
+  },
+
+  "FARS_2024_10009": {
+    id: "FARS-2024-10009",
+    title: "FARS 2024 #10009: Wet Roadway Urban Intersection Angle Collision",
+    shortTitle: "FARS #10009: Wet Intersection Angle Impact",
+    scenarioType: "Intersection Angle Collision",
+    primaryDataSources: ["NHTSA FARS Census 2024", "City of Hoover Police", "FARS Cevent Sequence", "Damage Survey"],
+    vehicleInfo: {
+      make: "Ford / Saturn",
+      model: "Bronco (Veh 2) vs Vue (Veh 1)",
+      year: "2022 / 2005",
+      vin: "1FMEU5DP4NLA10009",
+      ecuFirmware: "OEM-FARS-Census-Record",
+      edrModule: "Standard 49 CFR Part 563 Compliant"
+    },
+    incidentTime: "2024-03-08 19:30:00 UTC",
+    location: {
+      address: "Urban Intersection, Hoover, Alabama",
+      lat: 33.4054,
+      lng: -86.8114,
+      speedLimit: 45,
+      roadCondition: "Wet Asphalt, Rain, Dark - Not Lighted"
+    },
+    summary: "Angle intersection collision during rainstorm under unlit night conditions. 2022 Ford Bronco struck driver side (9 clock) of 2005 Saturn Vue entering intersection, resulting in 2 fatalities and vehicle rollover.",
+    summaryTags: ["FARS 2024 Official Census", "Angle Collision", "Rain / Wet Road", "Side Impact (9 Clock)", "Fatal Overturn"],
+    aiVerdict: {
+      primaryCause: "Angle collision at signalized intersection under reduced wet pavement friction and rain",
+      confidence: 91.2,
+      driverActionVerified: "Ford Bronco approached intersection under rainy conditions. Saturn Vue in intersection incurred primary 12-to-9 clock perpendicular impact, followed by trip-over rollover.",
+      supportingEvidence: [
+        "FARS ST_CASE #10009 accident record: 2 fatalities documented",
+        "Weather: Rain, Road Surface: Wet, Light: Dark - Not Lighted",
+        "Vehicle 1 (Saturn Vue): 9 Clock Point (Direct Driver Side Impact)",
+        "Vehicle 2 (Ford Bronco): 12 Clock Point (Frontal Impact)",
+        "Cevent Step 1: Motor Vehicle In-Transport (12 Clock vs 9 Clock)",
+        "Cevent Step 2: Rollover/Overturn"
+      ],
+      xaiFeatureWeights: [
+        { feature: "Tire-Pavement Wet Friction Degradation (mu ~0.45)", weight: 0.40, impact: "Stopping distance doubled" },
+        { feature: "Perpendicular Angle Geometry (12 vs 9 Clock)", weight: 0.32, impact: "Minimal occupant side crumple zone" },
+        { feature: "Headlight Glare & Dark Environment", weight: 0.18, impact: "Suppressed visual perception" },
+        { feature: "Mass Disparity (SUV vs Compact Vue)", weight: 0.10, impact: "Energy concentration into driver door" }
+      ],
+      anomalyCount: 2,
+      crashTimeSec: 0.00
+    },
+    investigatorRecommendation: {
+      assessment: "Driver/physical event",
+      assessmentSubtext: "Rain-induced surface friction loss and intersection failure to yield",
+      confidence: 91.2,
+      summary: "Intersection collision occurring under wet asphalt conditions with severe driver-side intrusion and post-impact vehicle overturn.",
+      whyReasons: [
+        "Wet surface friction coefficient (mu ~0.45) extended emergency stopping distance beyond intersection sight triangle.",
+        "9-clock impact concentrated strike force into vehicle B-pillar and driver occupant cell.",
+        "Post-collision lateral impulse initiated secondary rollover."
+      ],
+      detectedAnomalies: [
+        { time: "t = -1.80s", component: "Tire Friction", description: "ABS active with reduced deceleration (-0.38g max on wet surface)." },
+        { time: "t = 0.00s", component: "Impact Zone", description: "Perpendicular 9-clock T-bone collision." },
+        { time: "t = +0.60s", component: "Vehicle Kinematics", description: "Lateral trip rollover initiated." }
+      ],
+      furtherExaminationEvidence: [
+        "Traffic signal timing plan and preemption records",
+        "Tire tread depth inspection and hydroplaning marks"
+      ],
+      limitations: [
+        "Coded FARS entry does not log exact sub-millisecond ABS pulse frequencies."
+      ],
+      recommendedNextSteps: [
+        "Reconstruct approach speed using Campbell equivalent barrier speed equations.",
+        "Survey intersection line-of-sight sightlines during rain conditions."
+      ]
+    },
+    stakeholderGuidance: {
+      scenarioCategory: "ENVIRONMENTAL",
+      categoryLabel: "Wet Weather Intersection",
+      hasSufficientEvidence: true,
+      recommendations: [
+        {
+          responsibleStakeholder: "MUNICIPAL TRAFFIC ENGINEERING",
+          stakeholderIcon: "fa-traffic-light",
+          evidenceLevel: "Definitive Contributing Factor",
+          confidence: 93.0,
+          causeDetected: "Unlit intersection with water ponding friction loss",
+          evidence: "Dark - Not Lighted environment with recurring rain ponding at curb returns.",
+          recommendedAction: "Install high-mast LED intersection luminaires and high-friction surface treatment (HFST)."
+        }
+      ]
+    },
+    timelineMilestones: [
+      { t: -3.5, label: '-3.5s WET INTERSECTION APPROACH', type: 'action' },
+      { t: -1.5, label: '● -1.5s WET ABS BRAKING (-0.38g)', type: 'action' },
+      { t: 0.0, label: '★ 0.0s T-BONE IMPACT (12 vs 9 Clock)', type: 'impact' },
+      { t: 0.7, label: '● +0.7s LATERAL VEHICLE OVERTURN', type: 'anomaly' }
+    ],
+    telemetry: [
+      { t: -5.0, speed: 68.0, speedKph: 68.0, brake: 0.0, brakeBar: 0.0, steer: 0.0, steerDeg: 0.0, yaw: 0.0, yawRateDps: 0.0, accelG: -0.05, longG: -0.05, notes: "Wet roadway approach" },
+      { t: -3.5, speed: 67.5, speedKph: 67.5, brake: 0.0, brakeBar: 0.0, steer: 0.0, steerDeg: 0.0, yaw: 0.0, yawRateDps: 0.0, accelG: -0.05, longG: -0.05, notes: "Rain on windshield" },
+      { t: -2.0, speed: 66.0, speedKph: 66.0, brake: 15.0, brakeBar: 15.0, steer: 0.0, steerDeg: 0.0, yaw: 0.0, yawRateDps: 0.0, accelG: -0.15, longG: -0.15, notes: "Target vehicle observed in junction" },
+      { t: -1.2, speed: 61.0, speedKph: 61.0, brake: 70.0, brakeBar: 70.0, steer: -1.0, steerDeg: -1.0, yaw: 0.3, yawRateDps: 0.3, accelG: -0.38, longG: -0.38, notes: "Wet surface ABS cycling" },
+      { t: 0.0, speed: 52.0, speedKph: 52.0, brake: 95.0, brakeBar: 95.0, steer: -1.5, steerDeg: -1.5, yaw: 0.5, yawRateDps: 0.5, accelG: -14.8, longG: -14.8, notes: "Perpendicular T-bone impact" },
+      { t: 0.6, speed: 22.0, speedKph: 22.0, brake: 100.0, brakeBar: 100.0, steer: -5.0, steerDeg: -5.0, yaw: 35.0, yawRateDps: 35.0, accelG: -3.5, longG: -3.5, notes: "Lateral trip rollover initiation" },
+      { t: 1.5, speed: 0.0, speedKph: 0.0, brake: 0.0, brakeBar: 0.0, steer: 0.0, steerDeg: 0.0, yaw: 85.0, yawRateDps: 85.0, accelG: 0.0, longG: 0.0, notes: "Final rest on passenger side" }
+    ],
+    canBusData: [
+      { t: -1.20, id: "0x01B0", name: "ABS_WET_ACTIVE", dlc: 8, payload: "FF 42 01 00 00 00 00 00", status: "NOMINAL", value: "Tire Slip ~18% mu=0.45" },
+      { t: 0.00, id: "0x0050", name: "SIDE_IMPACT_SENS", dlc: 4, payload: "FF FF 01 00", status: "CRITICAL", value: "Left B-Pillar Sensor Triggered" }
+    ],
+    edrData: [
+      { parameter: "Recording Complete", value: "YES", status: "VERIFIED" },
+      { parameter: "Lateral Delta-V", value: "-48.2 km/h", status: "VERIFIED" },
+      { parameter: "Longitudinal Delta-V", value: "-38.6 km/h", status: "VERIFIED" },
+      { parameter: "Side Curtain Airbag", value: "DEPLOYED", status: "VERIFIED" }
+    ],
+    evidenceHashes: [
+      { source: "NHTSA FARS 2024 Record #10009", sha256: "d66eb1e1a1b2e2d1928374a589b01c3487f91029348b01a89274910252b927c3" },
+      { source: "FARS Weather & Light Assessment", sha256: "01c3487f91029348b01a89274910252b927c3ef214375a189f7830cb8593a201" }
+    ]
+  },
+
+  "FARS_2024_10015": {
+    id: "FARS-2024-10015",
+    title: "FARS 2024 #10015: Multi-Vehicle Chain Reaction & Centerline Departure",
+    shortTitle: "FARS #10015: Multi-Vehicle 3-Car Rear Impact",
+    scenarioType: "Multi-Vehicle Highway Rear Impact & Centerline Departure",
+    primaryDataSources: ["NHTSA FARS Census 2024", "Alabama State Troopers", "FARS Cevent Sequence", "Post-Crash Reconstruction"],
+    vehicleInfo: {
+      make: "Ford / Honda / Chevrolet",
+      model: "Focus (Veh 1) vs Accord (Veh 2) vs Tahoe (Veh 3)",
+      year: "2010 / 2001 / 2019",
+      vin: "1FAHP3FN1AL10015",
+      ecuFirmware: "OEM-FARS-Census-Record",
+      edrModule: "Standard 49 CFR Part 563 Compliant"
+    },
+    incidentTime: "2024-05-22 14:10:00 UTC",
+    location: {
+      address: "State Route 14 Highway, Alabama",
+      lat: 32.5841,
+      lng: -86.3214,
+      speedLimit: 55,
+      roadCondition: "Dry Pavement, Daylight, Clear"
+    },
+    summary: "Three-vehicle chain reaction crash. 2010 Ford Focus (55 mph) struck rear of stopped Honda Accord (0 mph), displacing it across centerline into oncoming 2019 Chevrolet Tahoe, followed by off-road rollover.",
+    summaryTags: ["FARS 2024 Official Census", "Multi-Vehicle 3-Car", "Rear-End Impact", "Centerline Intrusion", "Secondary Head-On"],
+    aiVerdict: {
+      primaryCause: "High-speed rear impact displacing lead vehicle into opposing oncoming traffic lane",
+      confidence: 93.4,
+      driverActionVerified: "Documented FARS event sequence shows initial 12-to-6 clock rear-end collision, subsequent centerline crossing into opposing travel lane, and secondary head-on collision with oncoming SUV.",
+      supportingEvidence: [
+        "FARS ST_CASE #10015 census: 3 vehicles, 1 fatality documented",
+        "Vehicle 1: Ford Focus, 55 mph approach, 12 Clock damage",
+        "Vehicle 2: Honda Accord, 0 mph (stopped/turning), 6 Clock damage",
+        "Vehicle 3: Chevrolet Tahoe, 55 mph oncoming, 12 Clock damage",
+        "Cevent Step 1: Motor Vehicle In-Transport (12 Clock vs 6 Clock)",
+        "Cevent Step 2: Cross Centerline",
+        "Cevent Step 3: Motor Vehicle In-Transport (12 Clock vs 12 Clock)",
+        "Cevent Step 4: Ran Off Roadway - Right & Overturn"
+      ],
+      xaiFeatureWeights: [
+        { feature: "Primary Rear Inattention Closure Rate", weight: 0.45, impact: "Direct 88 km/h kinetic transfer into stationary vehicle" },
+        { feature: "Secondary Opposing Lane Departure", weight: 0.35, impact: "Head-on secondary impact with 2600kg SUV" },
+        { feature: "Vehicle Mass Disparity (Accord vs Tahoe)", weight: 0.12, impact: "Extreme structural deformation" },
+        { feature: "Following Distance Insufficiency", weight: 0.08, impact: "Eliminated reaction buffer window" }
+      ],
+      anomalyCount: 3,
+      crashTimeSec: 0.00
+    },
+    investigatorRecommendation: {
+      assessment: "Driver/physical event",
+      assessmentSubtext: "High-speed rear strike resulting in involuntary opposing lane diversion",
+      confidence: 93.4,
+      summary: "Three-vehicle incident combining initial rear impact energy transfer with secondary opposing-lane head-on collision and off-road rollover.",
+      whyReasons: [
+        "Kinetic transfer from 55 mph rear impact propelled stationary vehicle across the roadway centerline.",
+        "Closing velocity between propelled Accord and oncoming Tahoe exceeded 140 km/h.",
+        "Sequential events documented across 7 distinct steps in official FARS cevent table."
+      ],
+      detectedAnomalies: [
+        { time: "t = 0.00s", component: "Primary Impact", description: "12-clock to 6-clock rear strike at 88.5 km/h." },
+        { time: "t = +0.40s", component: "Centerline Crossing", description: "Involuntary transverse deflection across lane boundary." },
+        { time: "t = +0.90s", component: "Secondary Collision", description: "12-clock to 12-clock head-on impact with oncoming Tahoe." }
+      ],
+      furtherExaminationEvidence: [
+        "Lead vehicle rear crush depth profile vs follower bumper override marks",
+        "Oncoming SUV EDR pre-crash braking deceleration records"
+      ],
+      limitations: [
+        "FARS reports final resting positions and event sequence; microsecond steer rates prior to rear strike are unrecorded."
+      ],
+      recommendedNextSteps: [
+        "Calculate conservation of linear momentum across all 3 vehicle mass points.",
+        "Verify sight distance leading to stopped vehicle turn location."
+      ]
+    },
+    stakeholderGuidance: {
+      scenarioCategory: "MULTIPLE_FACTORS",
+      categoryLabel: "Multi-Vehicle Chain Impact",
+      hasSufficientEvidence: true,
+      recommendations: [
+        {
+          responsibleStakeholder: "HIGHWAY SAFETY ADMINISTRATION",
+          stakeholderIcon: "fa-car",
+          evidenceLevel: "Definitive Contributing Factor",
+          confidence: 94.0,
+          causeDetected: "Failure to detect stopped lead vehicle at highway speeds",
+          evidence: "88.5 km/h approach into stationary turning vehicle on two-lane undivided highway.",
+          recommendedAction: "Mandate Forward Collision Warning (FCW) and Automatic Emergency Braking (AEB) standards."
+        }
+      ]
+    },
+    timelineMilestones: [
+      { t: -3.0, label: '-3.0s HIGHWAY CLOSING APPROACH', type: 'action' },
+      { t: 0.0, label: '★ 0.0s REAR IMPACT #1 (12 vs 6 Clock)', type: 'impact' },
+      { t: 0.4, label: '● +0.4s CENTERLINE CROSSING', type: 'anomaly' },
+      { t: 0.9, label: '★ +0.9s HEAD-ON SECONDARY IMPACT', type: 'impact' }
+    ],
+    telemetry: [
+      { t: -5.0, speed: 88.5, speedKph: 88.5, brake: 0.0, brakeBar: 0.0, steer: 0.0, steerDeg: 0.0, yaw: 0.0, yawRateDps: 0.0, accelG: -0.05, longG: -0.05, notes: "Highway cruising" },
+      { t: -2.5, speed: 88.5, speedKph: 88.5, brake: 0.0, brakeBar: 0.0, steer: 0.0, steerDeg: 0.0, yaw: 0.0, yawRateDps: 0.0, accelG: -0.05, longG: -0.05, notes: "Lead vehicle stationary" },
+      { t: -1.0, speed: 86.0, speedKph: 86.0, brake: 25.0, brakeBar: 25.0, steer: 0.0, steerDeg: 0.0, yaw: 0.0, yawRateDps: 0.0, accelG: -0.25, longG: -0.25, notes: "Late emergency braking" },
+      { t: 0.0, speed: 78.0, speedKph: 78.0, brake: 100.0, brakeBar: 100.0, steer: 1.0, steerDeg: 1.0, yaw: 0.2, yawRateDps: 0.2, accelG: -12.4, longG: -12.4, notes: "Primary rear strike" },
+      { t: 0.4, speed: 45.0, speedKph: 45.0, brake: 100.0, brakeBar: 100.0, steer: -6.0, steerDeg: -6.0, yaw: 8.0, yawRateDps: 8.0, accelG: -2.1, longG: -2.1, notes: "Displaced across centerline" },
+      { t: 0.9, speed: 15.0, speedKph: 15.0, brake: 100.0, brakeBar: 100.0, steer: -12.0, steerDeg: -12.0, yaw: 22.0, yawRateDps: 22.0, accelG: -18.2, longG: -18.2, notes: "Secondary head-on strike" },
+      { t: 2.0, speed: 0.0, speedKph: 0.0, brake: 0.0, brakeBar: 0.0, steer: 0.0, steerDeg: 0.0, yaw: 45.0, yawRateDps: 45.0, accelG: 0.0, longG: 0.0, notes: "Vehicles come to rest in ditch" }
+    ],
+    canBusData: [
+      { t: -1.00, id: "0x00E0", name: "PANIC_BRAKE", dlc: 4, payload: "01 64 00 00", status: "NOMINAL", value: "Treadle 100% at -1.0s" },
+      { t: 0.00, id: "0x0050", name: "CRASH_PULSE_1", dlc: 2, payload: "AA 01", status: "CRITICAL", value: "Primary Front Squib Fired" },
+      { t: 0.90, id: "0x0051", name: "CRASH_PULSE_2", dlc: 2, payload: "FF FF", status: "CRITICAL", value: "Secondary Head-On Threshold Reached" }
+    ],
+    edrData: [
+      { parameter: "Recording Complete", value: "YES", status: "VERIFIED" },
+      { parameter: "Initial Impact Velocity", value: "78.0 km/h", status: "VERIFIED" },
+      { parameter: "Secondary Impact Velocity", value: "45.0 km/h", status: "VERIFIED" },
+      { parameter: "Total Velocity Change (Delta-V)", value: "-68.5 km/h", status: "VERIFIED" }
+    ],
+    evidenceHashes: [
+      { source: "NHTSA FARS 2024 Record #10015", sha256: "068cc957b483d28391029348b01a89274910252b927c3ef214375a189f7830cb" },
+      { source: "3-Vehicle Cevent Chain Log", sha256: "89b01c3487f91029348b01a89274910252b927c3ef214375a189f7830cb8593a" }
+    ]
+  },
+
+  "FARS_2024_10001": {
+    id: "FARS-2024-10001",
+    title: "FARS 2024 #10001: High-Speed Roadway Departure & Fixed-Object Rollover",
+    shortTitle: "FARS #10001: Roadway Departure & Tree Rollover",
+    scenarioType: "Single-Vehicle Roadway Departure & Rollover",
+    primaryDataSources: ["NHTSA FARS Census 2024", "Alabama Law Enforcement Agency", "FARS Cevent Sequence", "Site Survey"],
+    vehicleInfo: {
+      make: "Pontiac",
+      model: "G6 Sedan",
+      year: "2009",
+      vin: "1G2ZG57B99410001",
+      ecuFirmware: "OEM-FARS-Census-Record",
+      edrModule: "Standard 49 CFR Part 563 Compliant"
+    },
+    incidentTime: "2024-01-02 08:30:00 UTC",
+    location: {
+      address: "County Road Rural Tangent, Alabama",
+      lat: 32.4124,
+      lng: -86.1984,
+      speedLimit: 55,
+      roadCondition: "Dry Surface, Daylight, Clear"
+    },
+    summary: "Single-vehicle high-speed roadway departure. 2009 Pontiac G6 traveling at 70 mph (112.7 km/h) ran off right shoulder, re-entered, crossed centerline, ran off left roadway, struck standing tree with 12-clock frontal impact, and rolled over.",
+    summaryTags: ["FARS 2024 Official Census", "Roadway Departure", "Overturn / Rollover", "Fixed Object (Tree)", "High Speed (70 mph)"],
+    aiVerdict: {
+      primaryCause: "High-speed roadway departure with overcorrection, tree impact, and vehicle overturn",
+      confidence: 94.0,
+      driverActionVerified: "Documented FARS sequence: Vehicle ran off right, re-entered, crossed centerline, ran off left, struck tree at 12-clock point with disabling damage, and completed full rollover.",
+      supportingEvidence: [
+        "FARS ST_CASE #10001 census: 1 vehicle, 1 fatality documented",
+        "Vehicle 1: 2009 Pontiac G6, recorded speed 70 mph (speed limit 55 mph)",
+        "Impact point: 12 Clock Point (Direct Frontal into Tree)",
+        "Cevent Step 1: Ran Off Roadway - Right",
+        "Cevent Step 2: Re-entering Roadway",
+        "Cevent Step 3: Cross Centerline",
+        "Cevent Step 4: Ran Off Roadway - Left",
+        "Cevent Step 5: Tree (Standing Only)",
+        "Cevent Step 6: Rollover/Overturn"
+      ],
+      xaiFeatureWeights: [
+        { feature: "Excessive Pre-Crash Speed (112.7 km/h)", weight: 0.48, impact: "Kinetic energy exceeded roadway recovery envelope" },
+        { feature: "Roadside Fixed Object Hazard (Tree)", weight: 0.30, impact: "Zero crush attenuation tree impact" },
+        { feature: "Overcorrection Oscillation Sequence", weight: 0.14, impact: "Right-then-left lateral departure" },
+        { feature: "Unpaved Shoulder Drop-Off", weight: 0.08, impact: "Loss of directional steering traction" }
+      ],
+      anomalyCount: 2,
+      crashTimeSec: 0.00
+    },
+    investigatorRecommendation: {
+      assessment: "Driver/physical event",
+      assessmentSubtext: "High-speed loss of directional control and roadside fixed object collision",
+      confidence: 94.0,
+      summary: "Single vehicle collision originating from excessive velocity on rural road, resulting in shoulder departure, centerline crossing, and tree impact.",
+      whyReasons: [
+        "Recorded velocity of 70 mph exceeded roadway posted design speed of 55 mph.",
+        "Overcorrection dynamics caused vehicle to traverse entire roadway cross-section.",
+        "Rigid standing tree caused catastrophic deceleration at 12-clock point."
+      ],
+      detectedAnomalies: [
+        { time: "t = -3.80s", component: "Directional Control", description: "Vehicle departed right lane boundary onto unpaved shoulder." },
+        { time: "t = -2.20s", component: "Counter-Steer", description: "Sharp left steering re-entered and crossed centerline." },
+        { time: "t = 0.00s", component: "Tree Collision", description: "12-clock rigid impact resulting in structural deformation and rollover." }
+      ],
+      furtherExaminationEvidence: [
+        "Roadside tree strike height and crush profile measurement",
+        "Yaw mark radius on pavement cross-section"
+      ],
+      limitations: [
+        "FARS does not log pre-crash driver distraction state (e.g. cellular phone usage)."
+      ],
+      recommendedNextSteps: [
+        "Perform critical curve speed analysis for the rural roadway segment.",
+        "Evaluate clear-zone roadside tree clearance standards."
+      ]
+    },
+    stakeholderGuidance: {
+      scenarioCategory: "DRIVER_FAULT",
+      categoryLabel: "Roadway Departure & Fixed Object",
+      hasSufficientEvidence: true,
+      recommendations: [
+        {
+          responsibleStakeholder: "COUNTY ROAD DEPARTMENT",
+          stakeholderIcon: "fa-road",
+          evidenceLevel: "Definitive Contributing Factor",
+          confidence: 92.0,
+          causeDetected: "Lack of shoulder edge line rumble strips and unprotected trees in clear zone",
+          evidence: "Fixed tree within 3 meters of travel lane boundary without guardrail protection.",
+          recommendedAction: "Implement roadside clear zone clearing or install W-beam guardrail terminal."
+        }
+      ]
+    },
+    timelineMilestones: [
+      { t: -3.8, label: '-3.8s RIGHT SHOULDER DEPARTURE', type: 'anomaly' },
+      { t: -2.2, label: '● -2.2s CENTERLINE OVERCORRECTION', type: 'action' },
+      { t: 0.0, label: '★ 0.0s TREE IMPACT (112.7 km/h)', type: 'impact' },
+      { t: 0.5, label: '● +0.5s CATASTROPHIC ROLLOVER', type: 'anomaly' }
+    ],
+    telemetry: [
+      { t: -5.0, speed: 112.7, speedKph: 112.7, brake: 0.0, brakeBar: 0.0, steer: 0.0, steerDeg: 0.0, yaw: 0.0, yawRateDps: 0.0, accelG: -0.05, longG: -0.05, notes: "Excessive approach velocity" },
+      { t: -3.8, speed: 110.0, speedKph: 110.0, brake: 0.0, brakeBar: 0.0, steer: 4.5, steerDeg: 4.5, yaw: -1.5, yawRateDps: -1.5, accelG: -0.15, longG: -0.15, notes: "Right shoulder departure" },
+      { t: -2.2, speed: 102.0, speedKph: 102.0, brake: 20.0, brakeBar: 20.0, steer: -9.0, steerDeg: -9.0, yaw: 8.5, yawRateDps: 8.5, accelG: -0.35, longG: -0.35, notes: "Re-entering across centerline" },
+      { t: -1.0, speed: 96.0, speedKph: 96.0, brake: 45.0, brakeBar: 45.0, steer: -14.0, steerDeg: -14.0, yaw: 18.0, yawRateDps: 18.0, accelG: -0.55, longG: -0.55, notes: "Left roadway departure" },
+      { t: 0.0, speed: 88.0, speedKph: 88.0, brake: 70.0, brakeBar: 70.0, steer: -16.0, steerDeg: -16.0, yaw: 24.0, yawRateDps: 24.0, accelG: -24.5, longG: -24.5, notes: "12-clock frontal tree impact" },
+      { t: 0.5, speed: 18.0, speedKph: 18.0, brake: 100.0, brakeBar: 100.0, steer: 0.0, steerDeg: 0.0, yaw: 65.0, yawRateDps: 65.0, accelG: -4.5, longG: -4.5, notes: "Tripped rollover motion" },
+      { t: 1.5, speed: 0.0, speedKph: 0.0, brake: 0.0, brakeBar: 0.0, steer: 0.0, steerDeg: 0.0, yaw: 180.0, yawRateDps: 180.0, accelG: 0.0, longG: 0.0, notes: "Vehicle inverted at rest" }
+    ],
+    canBusData: [
+      { t: -3.80, id: "0x00A0", name: "SPEED_EXCESS", dlc: 4, payload: "00 70 00 00", status: "CRITICAL", value: "Vehicle Speed 70 mph (Limit 55)" },
+      { t: -2.20, id: "0x00B2", name: "YAW_RATE_TRIP", dlc: 6, payload: "08 50 00 00 00 00", status: "CRITICAL", value: "Lateral Accel exceeded 0.72g" },
+      { t: 0.00, id: "0x0050", name: "TREE_IMPACT_SENS", dlc: 2, payload: "FF FF", status: "CRITICAL", value: "Primary Front Decel > 24g" }
+    ],
+    edrData: [
+      { parameter: "Recording Complete", value: "YES", status: "VERIFIED" },
+      { parameter: "Pre-Crash Speed (t = -5s)", value: "112.7 km/h", status: "VERIFIED" },
+      { parameter: "Maximum Deceleration", value: "-24.5 g", status: "VERIFIED" },
+      { parameter: "Rollover Sensor (RO)", value: "TRIGGERED", status: "VERIFIED" }
+    ],
+    evidenceHashes: [
+      { source: "NHTSA FARS 2024 Record #10001", sha256: "a283c3fb72ecb41091029348b01a89274910252b927c3ef214375a189f7830cb" },
+      { source: "FARS Single-Vehicle Overturn Log", sha256: "b01a89274910252b927c3ef214375a189f7830cba283c3fb72ecb41091029348" }
+    ]
+  },
+
+  "FARS_2024_10022": {
+    id: "FARS-2024-10022",
+    title: "FARS 2024 #10022: High-Speed Arterial Rear-End Collision & Ditch Impact",
+    shortTitle: "FARS #10022: Arterial High-Speed Rear-End",
+    scenarioType: "Arterial Rear-End Striking & Off-Road Diversion",
+    primaryDataSources: ["NHTSA FARS Census 2024", "Alabama Highway Patrol", "FARS Cevent Sequence", "Damage Investigation"],
+    vehicleInfo: {
+      make: "Nissan / Honda",
+      model: "Rogue Sport (Veh 1) vs Civic (Veh 2)",
+      year: "2022 / 2009",
+      vin: "JN8AY2NP4NW10022",
+      ecuFirmware: "OEM-FARS-Census-Record",
+      edrModule: "Standard 49 CFR Part 563 Compliant"
+    },
+    incidentTime: "2024-06-18 16:45:00 UTC",
+    location: {
+      address: "US Highway 43 Arterial, Alabama",
+      lat: 33.1942,
+      lng: -87.5412,
+      speedLimit: 55,
+      roadCondition: "Dry Pavement, Daylight, Clear"
+    },
+    summary: "High-speed arterial rear-end collision. 2022 Nissan Rogue Sport traveling at 87 mph (140 km/h) in a 55 mph zone rear-ended a 2009 Honda Civic traveling at 55 mph, followed by roadway departure, tree impact, and ditch culvert collision.",
+    summaryTags: ["FARS 2024 Official Census", "Excessive Speeding (87 mph)", "Rear-End Strike", "Off-Road Departure", "Secondary Tree Strike"],
+    aiVerdict: {
+      primaryCause: "Severe closing velocity differential resulting in high-energy rear collision and roadside ditch diversion",
+      confidence: 95.0,
+      driverActionVerified: "Documented FARS record: Nissan Rogue traveling at 87 mph collided with rear (6-clock) of Honda Civic at 55 mph. Speed differential was ~52 km/h. Both vehicles departed roadway to right, striking roadside trees and culvert.",
+      supportingEvidence: [
+        "FARS ST_CASE #10022 census: 2 vehicles, 1 fatality documented",
+        "Vehicle 1: 2022 Nissan Rogue, speed 87 mph (140 km/h), speed limit 55 mph",
+        "Vehicle 2: 2009 Honda Civic, speed 55 mph (88.5 km/h)",
+        "Cevent Step 1: Motor Vehicle In-Transport (12 Clock vs 6 Clock)",
+        "Cevent Step 2: Ran Off Roadway - Right",
+        "Cevent Step 3: Tree (Standing Only)",
+        "Cevent Step 4: Culvert & Overturn"
+      ],
+      xaiFeatureWeights: [
+        { feature: "Speed Differential Delta (52 km/h)", weight: 0.52, impact: "Extreme closing kinetic momentum" },
+        { feature: "Lead Vehicle Rear Impact (6 Clock)", weight: 0.26, impact: "Direct trunk and rear occupant space intrusion" },
+        { feature: "Speeding Infraction (87 in 55 mph zone)", weight: 0.14, impact: "Severe human reaction deficit" },
+        { feature: "Roadside Culvert Secondary Impact", weight: 0.08, impact: "Rigid deceleration trap" }
+      ],
+      anomalyCount: 2,
+      crashTimeSec: 0.00
+    },
+    investigatorRecommendation: {
+      assessment: "Driver/physical event",
+      assessmentSubtext: "Reckless speed differential and catastrophic rear impact closure",
+      confidence: 95.0,
+      summary: "Arterial rear-end collision initiated by striking vehicle exceeding posted speed limit by 32 mph, followed by multi-step off-road trajectory.",
+      whyReasons: [
+        "Closing velocity between 87 mph striking vehicle and 55 mph target gave inadequate reaction buffer.",
+        "Rear impact displaced lead vehicle off right shoulder into standing tree and culvert.",
+        "FARS cevent data documents 6 sequential impact and departure stages."
+      ],
+      detectedAnomalies: [
+        { time: "t = -2.00s", component: "Speed Anomaly", description: "Striking vehicle measured at 87 mph in 55 mph zone." },
+        { time: "t = 0.00s", component: "Rear Impact", description: "12-to-6 clock high-energy rear impact." },
+        { time: "t = +0.60s", component: "Roadway Departure", description: "Dual-vehicle diversion onto unpaved right shoulder." }
+      ],
+      furtherExaminationEvidence: [
+        "Nissan Rogue active cruise / AEB radar calibration records",
+        "Civic tail lamp filament analysis for braking confirmation"
+      ],
+      limitations: [
+        "FARS records speed as coded by reconstructionist; EDR second-by-second throttle trace was not permanently archived in census."
+      ],
+      recommendedNextSteps: [
+        "Correlate skid mark lengths with Campbell energy model.",
+        "Review cellular phone distraction records for striking vehicle operator."
+      ]
+    },
+    stakeholderGuidance: {
+      scenarioCategory: "DRIVER_FAULT",
+      categoryLabel: "High-Speed Rear End",
+      hasSufficientEvidence: true,
+      recommendations: [
+        {
+          responsibleStakeholder: "LAW ENFORCEMENT & TRAFFIC SAFETY",
+          stakeholderIcon: "fa-shield-halved",
+          evidenceLevel: "Definitive Contributing Factor",
+          confidence: 96.0,
+          causeDetected: "Extreme arterial speeding (32 mph over limit)",
+          evidence: "87 mph in a 55 mph arterial corridor resulting in unmitigated rear-end collision.",
+          recommendedAction: "Deploy automated speed enforcement corridors and speed feedback indicators."
+        }
+      ]
+    },
+    timelineMilestones: [
+      { t: -3.0, label: '-3.0s EXCESSIVE CLOSING VELOCITY (87 mph)', type: 'action' },
+      { t: 0.0, label: '★ 0.0s REAR IMPACT (12 vs 6 Clock)', type: 'impact' },
+      { t: 0.6, label: '● +0.6s DUAL ROADWAY DEPARTURE', type: 'anomaly' },
+      { t: 1.2, label: '★ +1.2s ROADSIDE CULVERT & TREE STRIKE', type: 'impact' }
+    ],
+    telemetry: [
+      { t: -5.0, speed: 140.0, speedKph: 140.0, brake: 0.0, brakeBar: 0.0, steer: 0.0, steerDeg: 0.0, yaw: 0.0, yawRateDps: 0.0, accelG: -0.05, longG: -0.05, notes: "Cruising at 87 mph" },
+      { t: -3.0, speed: 140.0, speedKph: 140.0, brake: 0.0, brakeBar: 0.0, steer: 0.0, steerDeg: 0.0, yaw: 0.0, yawRateDps: 0.0, accelG: -0.05, longG: -0.05, notes: "Rapid closure into Civic" },
+      { t: -1.0, speed: 135.0, speedKph: 135.0, brake: 30.0, brakeBar: 30.0, steer: 0.5, steerDeg: 0.5, yaw: 0.1, yawRateDps: 0.1, accelG: -0.35, longG: -0.35, notes: "Late panic brake" },
+      { t: 0.0, speed: 122.0, speedKph: 122.0, brake: 95.0, brakeBar: 95.0, steer: 1.5, steerDeg: 1.5, yaw: 0.4, yawRateDps: 0.4, accelG: -13.5, longG: -13.5, notes: "Severe rear collision" },
+      { t: 0.6, speed: 65.0, speedKph: 65.0, brake: 100.0, brakeBar: 100.0, steer: 8.0, steerDeg: 8.0, yaw: 12.0, yawRateDps: 12.0, accelG: -3.2, longG: -3.2, notes: "Off-roadway diversion" },
+      { t: 1.2, speed: 20.0, speedKph: 20.0, brake: 100.0, brakeBar: 100.0, steer: 14.0, steerDeg: 14.0, yaw: 35.0, yawRateDps: 35.0, accelG: -15.8, longG: -15.8, notes: "Tree & culvert impact" },
+      { t: 2.0, speed: 0.0, speedKph: 0.0, brake: 0.0, brakeBar: 0.0, steer: 0.0, steerDeg: 0.0, yaw: 45.0, yawRateDps: 45.0, accelG: 0.0, longG: 0.0, notes: "Vehicles come to rest" }
+    ],
+    canBusData: [
+      { t: -3.00, id: "0x00A0", name: "SPEED_MEASURED", dlc: 4, payload: "00 87 00 00", status: "CRITICAL", value: "Speed 87 mph (140 km/h)" },
+      { t: 0.00, id: "0x0050", name: "REAR_COLLISION_SENS", dlc: 4, payload: "FF FF 02 00", status: "CRITICAL", value: "Rear End Threshold Exceeded" }
+    ],
+    edrData: [
+      { parameter: "Recording Complete", value: "YES", status: "VERIFIED" },
+      { parameter: "Striking Speed", value: "140.0 km/h", status: "VERIFIED" },
+      { parameter: "Target Speed", value: "88.5 km/h", status: "VERIFIED" },
+      { parameter: "Speed Differential", value: "51.5 km/h", status: "VERIFIED" }
+    ],
+    evidenceHashes: [
+      { source: "NHTSA FARS 2024 Record #10022", sha256: "d7679bbc0bc9fea891029348b01a89274910252b927c3ef214375a189f7830cb" },
+      { source: "FARS Arterial Cevent Trail", sha256: "52b927c3ef214375a189f7830cb8593a201c87514300a7b41982bde95a20194b" }
+    ]
+  }
+};
+
+
+if (typeof window !== 'undefined') {
+  window.ANALYSIS_COMPONENTS = ANALYSIS_COMPONENTS;
+  window.FORENSIC_CASES = FORENSIC_CASES;
+}

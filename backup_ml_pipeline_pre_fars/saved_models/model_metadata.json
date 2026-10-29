@@ -1,0 +1,23 @@
+{
+  "input_dim": 21,
+  "num_classes": 4,
+  "continuous_features": [
+    "pre_impact_speed_kph",
+    "delta_v_kph"
+  ],
+  "categorical_features": [
+    "brake_applied",
+    "seatbelt_latched",
+    "airbag_deployed",
+    "collision_type",
+    "road_condition",
+    "vehicle_weight_class"
+  ],
+  "pytorch_accuracy": 0.832,
+  "pytorch_macro_f1": 0.7101311237212814,
+  "pytorch_test_loss": 0.3918749988079071,
+  "baseline_accuracy": 0.8293333333333334,
+  "baseline_macro_f1": 0.6595799107635549,
+  "sample_count": 2500,
+  "trained_at": "2026-10-23T12:46:40.295908+00:00"
+}

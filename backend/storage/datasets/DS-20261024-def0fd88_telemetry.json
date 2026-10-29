@@ -1,0 +1,1 @@
+[{"time_ms": 0, "speed_kph": 65.0, "brake": 0, "accel_g": -0.05}, {"time_ms": 1000, "speed_kph": 64.5, "brake": 0, "accel_g": -0.05}, {"time_ms": 2000, "speed_kph": 50.0, "brake": 1, "accel_g": -0.65}, {"time_ms": 3000, "speed_kph": 0.0, "brake": 1, "accel_g": -3.8}]

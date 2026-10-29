@@ -1,0 +1,1187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AUTO-RECON AI — AI-Driven Incident Reconstruction for Automotive Digital Forensics</title>
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#eff6ff',
+              100: '#dbeafe',
+              500: '#3b82f6',
+              600: '#2563eb',
+              700: '#1d4ed8',
+              800: '#1e40af',
+              900: '#1e3a8a',
+              950: '#172554'
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- FontAwesome & Typography -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+  
+  <!-- Chart.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+
+  <!-- Custom Forensic Stylesheet (Executive White & Blue) -->
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body class="tech-grid text-blue-900 min-h-screen bg-white">
+
+  <!-- ==========================================
+       TOP NAVIGATION BAR
+       ========================================== -->
+  <header class="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-blue-100 shadow-sm">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="h-16 flex items-center justify-between gap-4">
+        
+        <!-- Brand Logo & Identity -->
+        <div class="flex items-center space-x-3 shrink-0">
+          <div class="w-9 h-9 rounded-xl bg-blue-600 flex items-center justify-center text-white shadow-sm">
+            <i class="fa-solid fa-car-burst text-sm"></i>
+          </div>
+          <div>
+            <div class="flex items-center space-x-2">
+              <span class="font-extrabold tracking-tight text-lg text-blue-950">AUTO-RECON<span class="text-blue-600">.AI</span></span>
+              <span class="px-2 py-0.5 text-[10px] font-bold bg-blue-50 text-blue-700 border border-blue-200 rounded-full">Forensic Workstation</span>
+            </div>
+            <p class="text-[11px] text-blue-600 font-medium hidden md:block">Automotive Digital Forensics & Incident Reconstruction</p>
+          </div>
+        </div>
+
+        <!-- Main Navigation Tabs -->
+        <nav class="flex items-center space-x-1 bg-blue-50/80 p-1 rounded-full border border-blue-200 text-xs font-semibold">
+          <button class="nav-pill-btn active" data-view="studio">
+            <i class="fa-solid fa-compass-drafting text-xs"></i> Forensic Studio
+          </button>
+          <button class="nav-pill-btn" data-view="evidence">
+            <i class="fa-solid fa-folder-open text-xs"></i> Evidence
+          </button>
+          <button class="nav-pill-btn" data-view="reports">
+            <i class="fa-solid fa-file-lines text-xs"></i> Reports
+          </button>
+        </nav>
+
+        <!-- Right Controls: Scenario Dropdown & Pitch Deck -->
+        <div class="flex items-center space-x-3">
+          <!-- Scenario Preset Dropdown -->
+          <div class="relative">
+            <select id="case-select" class="bg-white text-xs font-bold text-blue-900 border border-blue-200 rounded-full px-4 py-2 pr-8 focus:outline-none focus:border-blue-600 appearance-none cursor-pointer max-w-[210px] sm:max-w-[340px] truncate shadow-sm">
+              <optgroup label="── Forensic Telemetry Cases ──">
+                <option value="CASE_AF_8902">1. Urban Intersection - Brake Latency (Vehicle Fault)</option>
+                <option value="CASE_AF_4421">2. Highway Exit - Pedal Misapplication (Driver Fault)</option>
+                <option value="CASE_AF_6715">3. Construction Zone - Missing Markings (Road Problem)</option>
+                <option value="CASE_AF_1082">4. Pedestrian Crosswalk - Night Glare (Environmental)</option>
+                <option value="CASE_AF_MULT">5. Expressway Pileup - Distraction + Slick Road (Multi-Factor)</option>
+                <option value="CASE_AF_9104">6. Steering System - SAS Anomaly (Vehicle Fault)</option>
+                <option value="CASE_AF_3389">7. Mountain Grade - Pneumatic Brake Loss (Multi-Factor)</option>
+              </optgroup>
+              <optgroup label="── NHTSA FARS 2024 Historical Crashes ──">
+                <option value="FARS_2024_10007">FARS #10007: Two-Vehicle Head-On + Rollover</option>
+                <option value="FARS_2024_10009">FARS #10009: Wet Roadway Angle Collision (Rain/T-Bone)</option>
+                <option value="FARS_2024_10015">FARS #10015: 3-Vehicle Chain Reaction (Rear-End)</option>
+                <option value="FARS_2024_10001">FARS #10001: High-Speed Run-Off-Road &amp; Tree Rollover</option>
+                <option value="FARS_2024_10022">FARS #10022: Arterial High-Speed Rear-End &amp; Culvert Strike</option>
+              </optgroup>
+            </select>
+            <i class="fa-solid fa-chevron-down absolute right-3 top-3 text-[10px] text-blue-400 pointer-events-none"></i>
+          </div>
+
+          <!-- Pitch Deck Action Button -->
+          <button id="btn-presentation" class="flex items-center space-x-1.5 px-3.5 py-2 rounded-full border border-blue-300 bg-blue-50 hover:bg-blue-100 text-blue-700 text-xs font-bold transition shadow-sm">
+            <i class="fa-solid fa-chalkboard-user"></i>
+            <span class="hidden sm:inline">Pitch Deck</span>
+          </button>
+        </div>
+
+      </div>
+    </div>
+  </header>
+
+  <!-- ==========================================
+       MAIN CONTENT CONTAINER
+       ========================================== -->
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+
+    <!-- ==========================================
+         VIEW 1: FORENSIC STUDIO (PRIMARY SCREEN)
+         ========================================== -->
+    <div id="view-studio" class="view-section space-y-6">
+      
+      <!-- TOP: Case Information & Investigation Status Banner -->
+      <div class="white-card p-5 space-y-3">
+        <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-3">
+          <div class="space-y-1">
+            <div class="flex items-center gap-2 flex-wrap">
+              <span id="hero-case-id" class="badge-pill badge-pill-blue mono-font">CASE #AF-8902</span>
+              <span class="badge-pill bg-blue-50 text-blue-800 border border-blue-200">DEMONSTRATION CASE</span>
+              <span id="hero-case-status" class="badge-pill badge-pill-emerald"><i class="fa-solid fa-circle-check text-[9px]"></i> Analysis Complete</span>
+            </div>
+            <h1 id="hero-case-title" class="text-xl sm:text-2xl font-extrabold text-blue-950 tracking-tight">Urban Intersection — Brake Response Anomaly</h1>
+          </div>
+
+          <div id="hero-case-tags" class="flex flex-wrap gap-1.5">
+            <!-- Injected dynamically -->
+          </div>
+        </div>
+
+        <!-- Vehicle & Location Meta Bar -->
+        <div class="pt-2 border-t border-blue-100 grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs text-blue-800">
+          <div>
+            <span class="text-blue-500 font-semibold block text-[10px] uppercase">Vehicle Information</span>
+            <span id="hero-vehicle-model" class="font-bold text-blue-950">2025 Apex EV Vortex Sedan</span>
+            <span id="hero-vehicle-vin" class="block mono-font text-blue-600 text-[11px]">VIN: 1HGCR2F83PA098124</span>
+          </div>
+          <div>
+            <span class="text-blue-500 font-semibold block text-[10px] uppercase">Incident Location & Speed Limit</span>
+            <span id="hero-incident-location" class="font-bold text-blue-950">Cyber Highway & 4th Avenue</span>
+            <span class="block text-blue-600 text-[11px]">Speed Limit: 60 km/h | Road: Dry Asphalt</span>
+          </div>
+          <div>
+            <span class="text-blue-500 font-semibold block text-[10px] uppercase">Incident Timestamp & Recording</span>
+            <span id="hero-incident-time" class="font-bold text-blue-950 mono-font">2026-08-14 17:42:19 UTC</span>
+            <span class="block text-blue-600 text-[11px]">Recorder: Bosch CDR Gen 4 / High-Speed CAN</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- MAIN: Trajectory Canvas (Left) + Reconstruction Finding (Right) -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+        
+        <!-- LEFT: Trajectory Visualization & Timeline Controls (7 Cols) -->
+        <div class="lg:col-span-7 space-y-4">
+          
+          <div class="flex items-center justify-between flex-wrap gap-2">
+            <div class="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-blue-950">
+              <i class="fa-solid fa-route text-blue-600"></i>
+              <span>Vehicle Trajectory Reconstruction</span>
+            </div>
+            
+            <!-- Perspective Buttons -->
+            <div class="flex items-center gap-1 bg-blue-50 p-1 rounded-full border border-blue-200">
+              <button class="camera-pill active" data-camera="topdown">Top View</button>
+              <button class="camera-pill" data-camera="dashcam">Dashcam</button>
+              <button class="camera-pill" data-camera="isometric">3D View</button>
+            </div>
+          </div>
+
+          <!-- Trajectory Canvas Viewport -->
+          <div class="relative bg-slate-900 rounded-2xl border border-blue-200 overflow-hidden shadow-md">
+            <canvas id="reconstruction-canvas" width="800" height="420" class="w-full h-auto block"></canvas>
+            
+            <!-- Event Overlay Subtitle -->
+            <div class="absolute bottom-3 left-3 right-3 bg-white/95 backdrop-blur-md border border-blue-200 rounded-xl p-2.5 flex items-center justify-between text-xs shadow-sm">
+              <div id="live-event-note" class="truncate mr-2 flex items-center text-blue-950">
+                <span class="inline-block w-2.5 h-2.5 rounded-full bg-blue-600 mr-2 shadow-[0_0_8px_#2563eb]"></span>
+                <span>Cruising at steady speed</span>
+              </div>
+              <div class="text-right shrink-0">
+                <span id="time-display" class="mono-font font-bold text-blue-600 text-sm">t = -5.00s</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Timeline Scrubber & Key Event Markers -->
+          <div class="white-card p-4 space-y-3">
+            
+            <!-- Key Event Markers Label Row -->
+            <div class="flex justify-between items-center text-[10px] font-semibold text-blue-600 border-b border-blue-100 pb-1.5">
+              <span>-5.0s</span>
+              <span id="marker-brake" class="text-blue-700 cursor-pointer hover:underline"><i class="fa-solid fa-circle text-[7px] mr-1"></i>Brake Command (-3.1s)</span>
+              <span id="marker-anomaly" class="text-amber-600 cursor-pointer hover:underline"><i class="fa-solid fa-triangle-exclamation text-[8px] mr-1"></i>Timing Anomaly</span>
+              <span id="marker-impact" class="text-rose-600 font-bold cursor-pointer hover:underline"><i class="fa-solid fa-circle-dot text-[8px] mr-1"></i>0.0s IMPACT</span>
+              <span>+2.5s</span>
+            </div>
+
+            <!-- Scrubber Slider -->
+            <input type="range" id="time-scrubber" class="white-scrubber" min="0" max="15" value="0" step="1" />
+
+            <!-- Playback Controls -->
+            <div class="flex items-center justify-between pt-1">
+              <div class="flex items-center space-x-2">
+                <button id="btn-play-pause" class="w-9 h-9 rounded-full bg-blue-600 hover:bg-blue-700 text-white flex items-center justify-center font-bold transition shadow-sm">
+                  <i id="btn-play-icon" class="fa-solid fa-play text-xs"></i>
+                </button>
+                <button id="btn-reset" class="w-8 h-8 rounded-full bg-blue-50 hover:bg-blue-100 text-blue-700 border border-blue-200 flex items-center justify-center transition" title="Rewind to -5.0s">
+                  <i class="fa-solid fa-backward-step text-xs"></i>
+                </button>
+                <button id="btn-rewind" class="w-8 h-8 rounded-full bg-blue-50 hover:bg-blue-100 text-blue-700 border border-blue-200 flex items-center justify-center transition" title="Step Back (-0.5s)">
+                  <i class="fa-solid fa-step-backward text-xs"></i>
+                </button>
+                <button id="btn-fast-forward" class="w-8 h-8 rounded-full bg-blue-50 hover:bg-blue-100 text-blue-700 border border-blue-200 flex items-center justify-center transition" title="Step Forward (+0.5s)">
+                  <i class="fa-solid fa-step-forward text-xs"></i>
+                </button>
+              </div>
+
+              <div class="flex items-center space-x-2 text-xs text-blue-600 font-semibold">
+                <span>Playback Rate:</span>
+                <button id="speed-multiplier-btn" class="px-2.5 py-1 rounded-full bg-blue-50 hover:bg-blue-100 border border-blue-200 text-blue-700 mono-font font-bold">1x</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Live Readout Gauges (6 clean forensic cards) -->
+          <div class="grid grid-cols-3 sm:grid-cols-6 gap-2 text-center text-xs">
+            <div class="p-2.5 bg-blue-50/50 rounded-xl border border-blue-100 shadow-sm">
+              <div class="text-[10px] text-blue-500 font-bold uppercase">Speed</div>
+              <div id="gauge-speed" class="font-extrabold text-blue-700 mono-font text-sm mt-0.5">72.0 km/h</div>
+            </div>
+            <div class="p-2.5 bg-blue-50/50 rounded-xl border border-blue-100 shadow-sm">
+              <div class="text-[10px] text-blue-500 font-bold uppercase">Throttle</div>
+              <div id="gauge-throttle" class="font-extrabold text-amber-600 mono-font text-sm mt-0.5">48%</div>
+            </div>
+            <div class="p-2.5 bg-blue-50/50 rounded-xl border border-blue-100 shadow-sm">
+              <div class="text-[10px] text-blue-500 font-bold uppercase">Brake</div>
+              <div id="gauge-brake" class="font-extrabold text-rose-600 mono-font text-sm mt-0.5">0 Bar</div>
+            </div>
+            <div class="p-2.5 bg-blue-50/50 rounded-xl border border-blue-100 shadow-sm">
+              <div class="text-[10px] text-blue-500 font-bold uppercase">Steering</div>
+              <div id="gauge-steer" class="font-extrabold text-purple-600 mono-font text-sm mt-0.5">+1.2°</div>
+            </div>
+            <div class="p-2.5 bg-blue-50/50 rounded-xl border border-blue-100 shadow-sm">
+              <div class="text-[10px] text-blue-500 font-bold uppercase">CAN Load</div>
+              <div id="gauge-can-load" class="font-extrabold text-emerald-600 mono-font text-sm mt-0.5">38%</div>
+            </div>
+            <div class="p-2.5 bg-blue-50/50 rounded-xl border border-blue-100 shadow-sm">
+              <div class="text-[10px] text-blue-500 font-bold uppercase">Decel</div>
+              <div id="gauge-gforce" class="font-extrabold text-blue-900 mono-font text-sm mt-0.5">-0.02 g</div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- RIGHT: Incident Reconstruction Finding & Analysis (5 Cols) -->
+        <div class="lg:col-span-5 space-y-4">
+          
+          <!-- Reconstruction Finding Card -->
+          <div class="white-card p-5 space-y-3.5">
+            <div class="flex items-center justify-between border-b border-blue-100 pb-2.5">
+              <div class="text-xs font-bold uppercase tracking-wider text-blue-950 flex items-center gap-1.5">
+                <i class="fa-solid fa-magnifying-glass-chart text-blue-600"></i>
+                <span>Incident Reconstruction Finding</span>
+              </div>
+              <div class="flex items-center gap-2">
+                <span id="fars-ml-severity-badge" class="badge-pill bg-purple-100 text-purple-900 border border-purple-200 text-[10px] font-bold hidden sm:inline-flex items-center gap-1">
+                  <i class="fa-solid fa-brain"></i> <span id="fars-ml-text">FARS ML Severity</span>
+                </span>
+                <span id="xai-confidence-badge" class="badge-pill badge-pill-emerald text-[11px] font-bold">Confidence: 92%</span>
+              </div>
+            </div>
+
+            <!-- Primary Finding Statement -->
+            <div class="p-3 bg-blue-50/80 rounded-xl border border-blue-200 space-y-1">
+              <span class="text-[10px] uppercase font-bold text-blue-600 tracking-wider">Primary Technical Finding</span>
+              <h3 id="xai-primary-cause" class="text-sm font-bold text-blue-950 leading-snug">
+                Brake response timing anomaly detected prior to intersection entry
+              </h3>
+            </div>
+
+            <!-- Summary Narrative -->
+            <p id="xai-rationale-text" class="text-xs text-blue-900 leading-relaxed">
+              Telemetry indicates driver depressed brake pedal at t = -3.10s. CAN message transmission for hydraulic brake line pressure reflects an anomalous delay of approximately 2.1 seconds before pressure rise.
+            </p>
+
+            <!-- Evidence Supporting Finding (Bullet List) -->
+            <div class="space-y-1.5 pt-1">
+              <span class="text-xs font-bold text-blue-950 uppercase tracking-wider">Evidence Supporting Finding:</span>
+              <ul id="supporting-evidence-list" class="space-y-1 text-xs text-blue-800">
+                <!-- Injected dynamically -->
+              </ul>
+            </div>
+
+            <!-- Contributing Evidence Factors (SHAP Weights) -->
+            <div class="space-y-2 pt-2 border-t border-blue-100">
+              <div class="flex items-center justify-between">
+                <span class="text-xs font-bold text-blue-950 uppercase tracking-wider">Contributing Evidence Factors</span>
+                <span class="text-[10px] text-blue-500 font-semibold">Weight</span>
+              </div>
+              <div id="xai-feature-list" class="space-y-2">
+                <!-- Injected dynamically -->
+              </div>
+            </div>
+
+          </div>
+
+        </div>
+
+      </div>
+
+      <!-- MIDDLE ROW: AI + PHYSICS ANALYSIS & WHAT-IF SIMULATION -->
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch">
+        
+        <!-- LEFT: AI + Physics Analysis Methods -->
+        <div class="white-card p-5 space-y-3.5 flex flex-col justify-between">
+          <div>
+            <div class="flex items-center justify-between border-b border-blue-100 pb-2.5">
+              <div class="text-xs font-bold uppercase tracking-wider text-blue-950 flex items-center gap-1.5">
+                <i class="fa-solid fa-brain text-blue-600"></i>
+                <span>AI + Physics Analysis</span>
+              </div>
+              <span class="text-[11px] font-semibold text-blue-700 mono-font bg-blue-50 px-2 py-0.5 rounded-full border border-blue-200">
+                Hybrid Core
+              </span>
+            </div>
+            <p class="text-xs text-blue-700 mt-2 leading-relaxed">
+              Multi-modal forensic pipeline coupling deterministic vehicle kinematics with machine learning attribution:
+            </p>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs pt-1">
+            <div class="p-3 bg-blue-50/50 rounded-xl border border-blue-100 space-y-1">
+              <div class="flex items-center gap-2">
+                <span class="w-5 h-5 rounded-full bg-blue-100 text-blue-700 font-bold flex items-center justify-center text-[10px] border border-blue-200">1</span>
+                <span class="font-bold text-blue-950 text-xs">Temporal Analysis</span>
+              </div>
+              <p class="text-[11px] text-blue-700 leading-relaxed">CAN packet timing, propagation jitter & transmission sequencing.</p>
+            </div>
+            <div class="p-3 bg-blue-50/50 rounded-xl border border-blue-100 space-y-1">
+              <div class="flex items-center gap-2">
+                <span class="w-5 h-5 rounded-full bg-blue-100 text-blue-700 font-bold flex items-center justify-center text-[10px] border border-blue-200">2</span>
+                <span class="font-bold text-blue-950 text-xs">Physics Validation</span>
+              </div>
+              <p class="text-[11px] text-blue-700 leading-relaxed">Longitudinal deceleration limits & physical friction boundary checks.</p>
+            </div>
+            <div class="p-3 bg-blue-50/50 rounded-xl border border-blue-100 space-y-1">
+              <div class="flex items-center gap-2">
+                <span class="w-5 h-5 rounded-full bg-purple-100 text-purple-700 font-bold flex items-center justify-center text-[10px] border border-purple-200">3</span>
+                <span class="font-bold text-blue-950 text-xs">Sensor Fusion</span>
+              </div>
+              <p class="text-[11px] text-blue-700 leading-relaxed">Extended Kalman Filter (EKF) unifying wheel speed, GPS & IMU yaw rate.</p>
+            </div>
+            <div class="p-3 bg-blue-50/50 rounded-xl border border-blue-100 space-y-1">
+              <div class="flex items-center gap-2">
+                <span class="w-5 h-5 rounded-full bg-emerald-100 text-emerald-700 font-bold flex items-center justify-center text-[10px] border border-emerald-200">4</span>
+                <span class="font-bold text-blue-950 text-xs">Explainable AI</span>
+              </div>
+              <p class="text-[11px] text-blue-700 leading-relaxed">TreeSHAP feature importance scoring across all telemetry channels.</p>
+            </div>
+          </div>
+
+          <div class="p-2.5 bg-blue-50/70 rounded-xl border border-blue-200 flex items-center justify-between text-[11px] text-blue-800">
+            <span class="flex items-center gap-1.5"><i class="fa-solid fa-microchip text-blue-600"></i> Deterministic Kinematics + XAI</span>
+            <span class="font-semibold text-blue-950">Confidence Model: 92%</span>
+          </div>
+        </div>
+
+        <!-- RIGHT: What-If Simulation Module -->
+        <div class="white-card p-5 space-y-3.5 flex flex-col justify-between">
+          <div class="flex items-center justify-between border-b border-blue-100 pb-2">
+            <div>
+              <span class="text-xs uppercase font-bold text-blue-600 tracking-wider">Counterfactual Analysis</span>
+              <h3 class="text-sm font-extrabold text-blue-950">WHAT-IF SIMULATION</h3>
+            </div>
+            <button id="btn-reset-whatif" class="px-2.5 py-1 bg-blue-50 hover:bg-blue-100 text-blue-700 text-xs font-semibold rounded-full border border-blue-200 transition">
+              <i class="fa-solid fa-rotate-left mr-1"></i> Reset
+            </button>
+          </div>
+          <p class="text-xs text-blue-700">Test hypothetical driver reaction or timing adjustments to evaluate outcome sensitivity:</p>
+
+          <!-- Sliders Grid -->
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <div class="space-y-1 p-2 bg-blue-50/60 rounded-lg border border-blue-100">
+              <div class="flex justify-between text-[11px] font-semibold">
+                <span class="text-blue-900">Driver Reaction:</span>
+                <span id="whatif-reaction-val" class="mono-font text-blue-700 font-bold">0 ms</span>
+              </div>
+              <input type="range" id="whatif-reaction-slider" min="-1000" max="1000" value="0" step="100" class="white-scrubber" />
+            </div>
+
+            <div class="space-y-1 p-2 bg-blue-50/60 rounded-lg border border-blue-100">
+              <div class="flex justify-between text-[11px] font-semibold">
+                <span class="text-blue-900">Response Delay:</span>
+                <span id="whatif-latency-val" class="mono-font text-amber-600 font-bold">2100 ms</span>
+              </div>
+              <input type="range" id="whatif-latency-slider" min="0" max="3000" value="2100" step="100" class="white-scrubber" />
+            </div>
+
+            <div class="space-y-1 p-2 bg-blue-50/60 rounded-lg border border-blue-100">
+              <div class="flex justify-between text-[11px] font-semibold">
+                <span class="text-blue-900">Speed Adjust:</span>
+                <span id="whatif-speed-val" class="mono-font text-purple-600 font-bold">0 km/h</span>
+              </div>
+              <input type="range" id="whatif-speed-slider" min="-20" max="20" value="0" step="5" class="white-scrubber" />
+            </div>
+          </div>
+
+          <!-- Side-by-side Outcome Comparison -->
+          <div class="grid grid-cols-2 gap-2.5 text-xs pt-1">
+            <div class="p-2.5 bg-blue-50/40 rounded-xl border border-blue-100 space-y-0.5">
+              <div class="text-[10px] uppercase font-bold text-blue-500">ORIGINAL RECORDED</div>
+              <div class="font-bold text-blue-950">Impact: <span class="text-rose-600 font-bold">YES</span></div>
+              <div class="text-[11px] text-blue-700">Impact Speed: <strong id="whatif-recorded-speed" class="text-blue-950">57.8 km/h</strong></div>
+            </div>
+            <div class="p-2.5 bg-blue-50/80 rounded-xl border border-blue-200 space-y-0.5">
+              <div class="text-[10px] uppercase font-bold text-blue-600">SIMULATED COUNTERFACTUAL</div>
+              <div id="whatif-sim-impact" class="font-bold text-rose-600">Impact: YES</div>
+              <div id="whatif-sim-detail" class="text-[11px] text-blue-900">Impact Speed: <strong>57.8 km/h</strong></div>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+
+      <!-- COMPACT INCIDENT TIMELINE -->
+      <div class="white-card p-4 space-y-2.5">
+        <div class="flex justify-between items-center">
+          <div class="text-xs font-bold uppercase tracking-wider text-blue-950 flex items-center gap-2">
+            <i class="fa-solid fa-timeline text-blue-600"></i> Incident Timeline
+          </div>
+          <span class="text-[11px] text-blue-500 font-medium">Click any milestone to inspect vehicle telemetry</span>
+        </div>
+        
+        <div id="incident-timeline-track" class="py-2 px-1">
+          <!-- Injected dynamically per scenario -->
+        </div>
+      </div>
+
+      <!-- BOTTOM: Synchronized Telemetry Graphs (Chart.js) -->
+      <div class="white-card p-5 space-y-3">
+        <div class="flex justify-between items-center">
+          <div class="text-xs font-bold uppercase tracking-wider text-blue-950 flex items-center gap-2">
+            <i class="fa-solid fa-chart-line text-blue-600"></i> Synchronized Vehicle Telemetry
+          </div>
+          <span class="text-xs text-blue-500 font-medium">Click on any chart to jump timeline position</span>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div class="p-3 bg-blue-50/30 rounded-xl border border-blue-100 space-y-1">
+            <div class="text-xs font-bold text-blue-900 flex items-center justify-between">
+              <span>Speed vs Throttle Demand</span>
+              <span class="text-[10px] text-blue-600 mono-font">km/h / %</span>
+            </div>
+            <div class="h-40"><canvas id="chart-speed"></canvas></div>
+          </div>
+
+          <div class="p-3 bg-blue-50/30 rounded-xl border border-blue-100 space-y-1">
+            <div class="text-xs font-bold text-blue-900 flex items-center justify-between">
+              <span>Hydraulic Brake Pressure & ABS</span>
+              <span class="text-[10px] text-rose-600 mono-font">Bar / State</span>
+            </div>
+            <div class="h-40"><canvas id="chart-brake"></canvas></div>
+          </div>
+
+          <div class="p-3 bg-blue-50/30 rounded-xl border border-blue-100 space-y-1">
+            <div class="text-xs font-bold text-blue-900 flex items-center justify-between">
+              <span>Steering Angle & Yaw Rate</span>
+              <div class="flex items-center gap-1.5 text-[10px] mono-font">
+                <span class="text-purple-600 font-semibold">Steering Angle (°)</span>
+                <span class="text-blue-300">|</span>
+                <span class="text-sky-600 font-semibold">Yaw Rate (°/s)</span>
+              </div>
+            </div>
+            <div class="h-40"><canvas id="chart-steer"></canvas></div>
+          </div>
+
+          <div class="p-3 bg-blue-50/30 rounded-xl border border-blue-100 space-y-1">
+            <div class="text-xs font-bold text-blue-900 flex items-center justify-between">
+              <span>CAN Bus Activity / Load</span>
+              <span class="text-[10px] text-emerald-600 mono-font font-semibold">CAN Load (%)</span>
+            </div>
+            <div class="h-40"><canvas id="chart-can"></canvas></div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+<!-- ==========================================
+         VIEW 3: EVIDENCE (UPLOAD + LEDGER + TABLES)
+         ========================================== -->
+    <div id="view-evidence" class="view-section hidden space-y-6">
+      
+      <!-- Upload Dropzone Card -->
+      <div class="white-card p-6 space-y-4">
+        <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-3">
+          <div>
+            <div class="text-xs uppercase font-bold text-blue-600 tracking-wider flex items-center gap-1.5">
+              <i class="fa-solid fa-file-shield"></i> Evidence Ingestion
+            </div>
+            <h2 class="text-lg font-extrabold text-blue-950 mt-0.5">Upload Vehicle Telemetry & Crash Evidence</h2>
+            <p class="text-xs text-blue-700">Supported formats: CAN logs (.asc/.mf4), EDR binaries (.bin), GPS logs (.nmea), CSV, and JSON:</p>
+          </div>
+          <button id="btn-download-sample" class="px-3.5 py-2 rounded-full bg-blue-50 hover:bg-blue-100 border border-blue-200 text-blue-700 text-xs font-semibold transition flex items-center gap-2">
+            <i class="fa-solid fa-download text-blue-600"></i> Download Sample JSON
+          </button>
+        </div>
+
+        <!-- Drag & Drop Dropzone -->
+        <div id="dropzone-box" class="clean-dropzone p-8 text-center space-y-3 cursor-pointer">
+          <input type="file" id="crash-file-input" class="hidden" accept=".json,.csv,.bin,.asc,.log,.pcap" />
+          <div class="w-12 h-12 mx-auto rounded-full bg-blue-50 border border-blue-200 text-blue-600 flex items-center justify-center text-xl shadow-sm">
+            <i class="fa-solid fa-cloud-arrow-up"></i>
+          </div>
+          <div>
+            <div class="text-xs font-bold text-blue-950">Drag & drop automotive telemetry file here, or <span class="text-blue-600 underline">browse</span></div>
+            <p class="text-[11px] text-blue-600 mt-0.5">SHA-256 cryptographic verification is computed client-side upon file selection</p>
+          </div>
+          <button id="btn-browse-file" class="px-4 py-1.5 rounded-full bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold transition shadow-sm">
+            Select File from Device
+          </button>
+        </div>
+
+        <!-- Optional Trusted Acquisition Reference Input & Backend Engine Status -->
+        <div class="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3 pt-3 border-t border-blue-100">
+          <div class="flex-1 flex flex-col sm:flex-row items-start sm:items-center gap-2">
+            <span class="text-[11px] font-bold text-blue-900 whitespace-nowrap">
+              <i class="fa-solid fa-key text-blue-600"></i> Acquisition Reference SHA-256 (Optional):
+            </span>
+            <input type="text" id="upload-reference-hash" placeholder="Paste 64-char hex hash from sealed media..." maxlength="64" class="w-full sm:w-80 bg-white border border-blue-200 rounded-lg px-3 py-1.5 text-blue-900 text-xs mono-font focus:outline-none focus:border-blue-600 shadow-sm" />
+          </div>
+          <div class="flex items-center gap-2">
+            <span id="backend-status-pill" class="badge-pill text-[10px] bg-slate-100 text-slate-700 border border-slate-300">
+              <i class="fa-solid fa-circle-nodes mr-1"></i> Checking Engine...
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Chain of Custody & Evidence Ledger Audit Table -->
+      <div class="white-card p-5 space-y-3">
+        <div class="flex justify-between items-center">
+          <div>
+            <h3 class="font-bold text-blue-950 text-sm">Chain of Custody & Evidence Ledger</h3>
+            <p class="text-xs text-blue-700">Evidence File &rarr; SHA-256 Hash &rarr; Timestamp &rarr; Verification &rarr; Analysis &rarr; Report</p>
+          </div>
+          <button id="btn-verify-hashes" class="px-3 py-1.5 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 text-emerald-700 text-xs font-bold rounded-full transition shadow-sm">
+            <i class="fa-solid fa-fingerprint mr-1"></i> Verify All Hashes
+          </button>
+        </div>
+
+        <div id="chain-custody-list" class="space-y-2">
+          <!-- Injected dynamically -->
+        </div>
+      </div>
+
+      <!-- High-Speed CAN Bus Log Table -->
+      <div class="white-card p-5 space-y-3">
+        <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-3">
+          <div>
+            <h3 class="text-sm font-bold text-blue-950 flex items-center gap-2">
+              <i class="fa-solid fa-network-wired text-blue-600"></i> CAN Bus Packet Arbitration Log
+            </h3>
+            <p class="text-xs text-blue-700">Synchronized vehicle network frame sequence:</p>
+          </div>
+          <div class="flex items-center gap-2">
+            <input type="text" id="can-search-input" placeholder="Search CAN ID (e.g. 0x0284)..." class="bg-white border border-blue-200 rounded-full px-3 py-1 text-blue-900 text-xs focus:outline-none focus:border-blue-600 shadow-sm" />
+            <label class="flex items-center gap-1 text-xs text-blue-800 font-semibold cursor-pointer">
+              <input type="checkbox" id="can-anomaly-filter" class="rounded text-blue-600 focus:ring-0 bg-white border-blue-300" />
+              <span>Anomalies Only</span>
+            </label>
+          </div>
+        </div>
+
+        <div class="max-h-64 overflow-y-auto border border-blue-100 rounded-xl">
+          <table class="w-full text-left border-collapse">
+            <thead class="bg-blue-50 sticky top-0 text-[10px] text-blue-800 uppercase font-bold border-b border-blue-200">
+              <tr>
+                <th class="p-2.5">Time (t)</th>
+                <th class="p-2.5">CAN ID</th>
+                <th class="p-2.5">Payload (Hex Bytes)</th>
+                <th class="p-2.5">Bus Load</th>
+                <th class="p-2.5">Status</th>
+              </tr>
+            </thead>
+            <tbody id="can-log-table-body" class="divide-y divide-blue-50">
+              <!-- Injected dynamically -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- EDR Part 563 Freeze-Frame Table -->
+      <div class="white-card p-5 space-y-3">
+        <div class="flex justify-between items-center">
+          <div>
+            <h3 class="text-sm font-bold text-blue-950 flex items-center gap-2">
+              <i class="fa-solid fa-database text-purple-600"></i> Event Data Recorder (EDR) Frozen Telemetry Table
+            </h3>
+            <p class="text-xs text-blue-700">Structured using 49 CFR Part 563 EDR data fields</p>
+          </div>
+          <button id="btn-export-json" class="px-3.5 py-1.5 bg-blue-50 hover:bg-blue-100 border border-blue-200 text-blue-700 text-xs font-semibold rounded-full transition flex items-center gap-1.5 shadow-sm">
+            <i class="fa-solid fa-file-export text-blue-600"></i> Export Case JSON
+          </button>
+        </div>
+
+        <div class="max-h-60 overflow-y-auto border border-blue-100 rounded-xl">
+          <table class="w-full text-left border-collapse">
+            <thead class="bg-blue-50 sticky top-0 text-[10px] text-blue-800 uppercase font-bold border-b border-blue-200">
+              <tr>
+                <th class="p-2.5">Time (s)</th>
+                <th class="p-2.5">Speed (km/h)</th>
+                <th class="p-2.5">Throttle (%)</th>
+                <th class="p-2.5">Brake (Bar)</th>
+                <th class="p-2.5">Steering (°)</th>
+                <th class="p-2.5">Decel (g)</th>
+                <th class="p-2.5">ABS State</th>
+              </tr>
+            </thead>
+            <tbody id="edr-table-body" class="divide-y divide-blue-50">
+              <!-- Injected dynamically -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Audit Trail / Hash Chain Modal -->
+      <div id="audit-trail-modal" class="fixed inset-0 bg-blue-950/40 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="white-card max-w-2xl w-full p-6 space-y-4 max-h-[85vh] flex flex-col shadow-2xl">
+          <div class="flex justify-between items-start border-b border-blue-100 pb-3">
+            <div>
+              <div class="text-xs uppercase font-bold text-blue-600 tracking-wider flex items-center gap-1.5">
+                <i class="fa-solid fa-link"></i> Cryptographic Audit Trail
+              </div>
+              <h3 id="modal-audit-title" class="text-base font-extrabold text-blue-950 mt-0.5">Evidence Chain-of-Custody</h3>
+              <p id="modal-audit-subtitle" class="text-xs text-blue-700 font-mono"></p>
+            </div>
+            <button id="btn-close-audit-modal" class="w-8 h-8 rounded-full bg-blue-50 hover:bg-blue-100 border border-blue-200 text-blue-700 flex items-center justify-center transition">
+              <i class="fa-solid fa-xmark"></i>
+            </button>
+          </div>
+
+          <div id="modal-chain-status" class="py-2.5 px-3.5 rounded-xl bg-blue-50/70 border border-blue-200/70 flex justify-between items-center text-xs">
+            <!-- Chain status badge injected dynamically -->
+          </div>
+
+          <div id="modal-audit-timeline" class="flex-1 overflow-y-auto space-y-3 pr-1 text-xs">
+            <!-- Injected dynamically -->
+          </div>
+
+          <div class="pt-3 border-t border-blue-100 flex justify-end">
+            <button id="btn-modal-close-action" class="px-4 py-1.5 rounded-full bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold transition shadow-sm">
+              Close Audit Trail
+            </button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ==========================================
+         VIEW 4: REPORTS (FORENSIC EVIDENCE REPORT)
+         ========================================== -->
+    <div id="view-reports" class="view-section hidden space-y-6">
+      
+      <!-- Report Top Controls -->
+      <div class="flex justify-between items-center">
+        <div>
+          <h2 class="text-lg font-bold text-blue-950">Forensic Evidence Report</h2>
+          <p class="text-xs text-blue-700">Integrity-verified forensic report compiled from vehicle telemetry, chain of custody, and investigator recommendations</p>
+        </div>
+        <div class="flex items-center space-x-2.5">
+          <button id="btn-print-report" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-full text-xs transition flex items-center gap-1.5 shadow-sm">
+            <i class="fa-solid fa-print"></i> Print / Save PDF
+          </button>
+        </div>
+      </div>
+
+      <!-- Report Sheet Container -->
+      <div id="report-sheet-container" class="report-sheet bg-white border border-blue-200 rounded-2xl p-6 sm:p-8 space-y-6 text-blue-950 shadow-md">
+        <!-- Injected dynamically via renderForensicReport() -->
+      </div>
+
+    </div>
+
+  </main>
+
+  <!-- ==========================================
+       FOOTER
+       ========================================== -->
+  <footer class="mt-12 py-5 bg-white border-t border-blue-100 text-xs text-blue-700">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-2">
+      <div class="flex items-center space-x-2 font-semibold">
+        <i class="fa-solid fa-car-burst text-blue-600"></i>
+        <span class="text-blue-950 font-bold">AUTO-RECON AI</span>
+        <span>&bull; Automotive Digital Forensics & Incident Reconstruction</span>
+      </div>
+      <div>
+        <span>Standards: 49 CFR Part 563 &bull; ISO 11898 &bull; SAE J1939 &bull; IEEE 1616 &bull; FIPS 180-4 (SHA-256)</span>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ==========================================
+       MODAL: FULL-SCREEN PITCH PRESENTATION DECK (10 SLIDES - WHITE & BLUE THEME)
+       ========================================== -->
+  <div id="presentation-modal" class="hidden fixed inset-0 z-50 bg-white/98 backdrop-blur-xl flex flex-col justify-between p-4 sm:p-8 text-blue-950">
+    <div class="flex justify-between items-center border-b border-blue-200 pb-3">
+      <div class="flex items-center space-x-3">
+        <span class="badge-pill badge-pill-blue text-xs">
+          <i class="fa-solid fa-chalkboard-user mr-1"></i> AUTO-RECON AI PITCH DECK
+        </span>
+        <span id="slide-indicator-text" class="text-xs text-blue-600 mono-font">Slide 1 / 10</span>
+      </div>
+      <button id="btn-close-presentation" class="p-2 rounded-lg bg-blue-50 hover:bg-blue-100 text-blue-700 border border-blue-200 transition">
+        <i class="fa-solid fa-xmark text-sm"></i>
+      </button>
+    </div>
+
+    <!-- Slide View Container -->
+    <div class="my-auto max-w-5xl w-full mx-auto py-6">
+      
+      <!-- Slide 1: Title -->
+      <div class="presentation-slide space-y-5 text-center">
+        <span class="badge-pill badge-pill-blue text-xs tracking-wider">PROJECT PITCH DECK</span>
+        <h1 class="text-4xl sm:text-6xl font-black text-blue-950 leading-tight">
+          AUTO-RECON <span class="text-blue-600">AI</span>
+        </h1>
+        <h2 class="text-lg sm:text-2xl font-bold text-blue-900 max-w-3xl mx-auto">
+          AI-Driven Incident Reconstruction for Automotive Digital Forensics
+        </h2>
+        <p class="text-sm sm:text-base text-blue-600 font-semibold italic">
+          "From Fragmented Vehicle Evidence to Explainable Incident Reconstruction"
+        </p>
+
+        <!-- Team Members -->
+        <div class="pt-6 border-t border-blue-100 max-w-2xl mx-auto">
+          <div class="text-[11px] uppercase tracking-widest text-blue-600 font-bold mb-3">Project Team Members</div>
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-3.5 max-w-2xl mx-auto">
+            <div class="p-3.5 bg-blue-50/70 border border-blue-200 rounded-xl shadow-sm text-center">
+              <div class="font-bold text-blue-950 text-sm">Srivatsa M</div>
+              <div class="text-[11px] text-blue-600 mt-0.5 font-medium">Automotive Forensics & Lead</div>
+            </div>
+            <div class="p-3.5 bg-blue-50/70 border border-blue-200 rounded-xl shadow-sm text-center">
+              <div class="font-bold text-blue-950 text-sm">Chandrashekar</div>
+              <div class="text-[11px] text-blue-600 mt-0.5 font-medium">Vehicle Systems & Telemetry</div>
+            </div>
+            <div class="p-3.5 bg-blue-50/70 border border-blue-200 rounded-xl shadow-sm text-center">
+              <div class="font-bold text-blue-950 text-sm">Kanishka Mishra</div>
+              <div class="text-[11px] text-blue-600 mt-0.5 font-medium">AI Reconstruction & Safety Analysis</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Slide 2: The Problem -->
+      <div class="presentation-slide hidden space-y-4">
+        <div class="text-center space-y-1">
+          <span class="badge-pill badge-pill-danger text-xs">THE CHALLENGE</span>
+          <h2 class="text-2xl sm:text-4xl font-extrabold text-blue-950">The Modern Automotive Forensic Problem</h2>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-5 gap-3 pt-2">
+          <div class="p-3.5 bg-blue-50/60 border border-blue-200 rounded-xl space-y-1.5">
+            <div class="text-blue-600 font-bold text-xs mono-font">01</div>
+            <h4 class="font-bold text-blue-950 text-xs">Multiple Heterogeneous Sources</h4>
+            <p class="text-[11px] text-blue-800">Automotive incidents generate disparate evidence across EDR, CAN, ECU, GPS, and dashcam.</p>
+          </div>
+          <div class="p-3.5 bg-blue-50/60 border border-blue-200 rounded-xl space-y-1.5">
+            <div class="text-amber-600 font-bold text-xs mono-font">02</div>
+            <h4 class="font-bold text-blue-950 text-xs">Isolated Data Silos</h4>
+            <p class="text-[11px] text-blue-800">EDR, CAN logs, ECU fault tables, and sensor channels are routinely analyzed in complete isolation.</p>
+          </div>
+          <div class="p-3.5 bg-blue-50/60 border border-blue-200 rounded-xl space-y-1.5">
+            <div class="text-purple-600 font-bold text-xs mono-font">03</div>
+            <h4 class="font-bold text-blue-950 text-xs">Manual Log Correlation</h4>
+            <p class="text-[11px] text-blue-800">Investigators must align asynchronous timestamps and packet sequences by hand across days of work.</p>
+          </div>
+          <div class="p-3.5 bg-blue-50/60 border border-blue-200 rounded-xl space-y-1.5">
+            <div class="text-rose-600 font-bold text-xs mono-font">04</div>
+            <h4 class="font-bold text-blue-950 text-xs">Cyber vs Physical Disconnect</h4>
+            <p class="text-[11px] text-blue-800">Connecting network anomalies or CAN bus spoofing with physical actuator responses is notoriously difficult.</p>
+          </div>
+          <div class="p-3.5 bg-blue-50/60 border border-blue-200 rounded-xl space-y-1.5">
+            <div class="text-emerald-600 font-bold text-xs mono-font">05</div>
+            <h4 class="font-bold text-blue-950 text-xs">Fragmented Evidence</h4>
+            <p class="text-[11px] text-blue-800">Critical evidence fragments across multiple proprietary OEM toolsets without a unified chain of custody.</p>
+          </div>
+        </div>
+        <div class="p-3.5 bg-blue-50 border border-blue-200 rounded-xl text-center max-w-3xl mx-auto">
+          <p class="text-xs sm:text-sm font-bold text-blue-950">
+            The key challenge: <span class="text-blue-700">How can investigators reconstruct what actually happened from heterogeneous automotive evidence?</span>
+          </p>
+        </div>
+      </div>
+
+      <!-- Slide 3: Our Solution -->
+      <div class="presentation-slide hidden space-y-5 text-center">
+        <span class="badge-pill badge-pill-blue text-xs">OUR SOLUTION</span>
+        <h2 class="text-2xl sm:text-3xl font-extrabold text-blue-950">AUTO-RECON AI Platform</h2>
+        
+        <!-- Workflow Pipeline -->
+        <div class="p-4 bg-white border border-blue-200 rounded-2xl max-w-4xl mx-auto shadow-sm">
+          <div class="text-xs font-bold text-blue-600 uppercase tracking-wider mb-3">Investigation Workflow Pipeline</div>
+          <div class="grid grid-cols-2 sm:grid-cols-7 gap-2 text-center text-xs">
+            <div class="p-2 bg-blue-50 border border-blue-200 rounded-lg">
+              <div class="text-blue-700 font-bold text-[10px]">1. COLLECT</div>
+              <div class="text-blue-950 text-[11px] font-semibold mt-0.5">Multi-source</div>
+            </div>
+            <div class="p-2 bg-blue-50 border border-blue-200 rounded-lg">
+              <div class="text-blue-700 font-bold text-[10px]">2. NORMALIZE</div>
+              <div class="text-blue-950 text-[11px] font-semibold mt-0.5">100Hz Sync</div>
+            </div>
+            <div class="p-2 bg-blue-50 border border-blue-200 rounded-lg">
+              <div class="text-purple-700 font-bold text-[10px]">3. CORRELATE</div>
+              <div class="text-blue-950 text-[11px] font-semibold mt-0.5">Timeline Fusion</div>
+            </div>
+            <div class="p-2 bg-blue-50 border border-blue-200 rounded-lg">
+              <div class="text-amber-700 font-bold text-[10px]">4. DETECT</div>
+              <div class="text-blue-950 text-[11px] font-semibold mt-0.5">Anomalies</div>
+            </div>
+            <div class="p-2 bg-blue-50 border border-blue-200 rounded-lg">
+              <div class="text-pink-700 font-bold text-[10px]">5. RECONSTRUCT</div>
+              <div class="text-blue-950 text-[11px] font-semibold mt-0.5">Kinematic 2D</div>
+            </div>
+            <div class="p-2 bg-blue-50 border border-blue-200 rounded-lg">
+              <div class="text-indigo-700 font-bold text-[10px]">6. EXPLAIN</div>
+              <div class="text-blue-950 text-[11px] font-semibold mt-0.5">TreeSHAP XAI</div>
+            </div>
+            <div class="p-2 bg-blue-50 border border-blue-200 rounded-lg">
+              <div class="text-emerald-700 font-bold text-[10px]">7. REPORT</div>
+              <div class="text-blue-950 text-[11px] font-semibold mt-0.5">SHA-256 PDF</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Evidence Data Flow Architecture -->
+        <div class="p-4 bg-blue-50/60 border border-blue-200 rounded-xl max-w-4xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
+          <div class="p-2.5 bg-white border border-blue-200 rounded-lg text-center font-bold text-blue-950 shrink-0">
+            EDR + CAN + ECU + Sensors
+          </div>
+          <i class="fa-solid fa-arrow-right text-blue-600 hidden sm:block"></i>
+          <div class="p-2.5 bg-blue-600 border border-blue-700 rounded-lg text-center font-bold text-white shrink-0">
+            AUTO-RECON AI Core
+          </div>
+          <i class="fa-solid fa-arrow-right text-blue-600 hidden sm:block"></i>
+          <div class="p-2.5 bg-white border border-blue-200 rounded-lg text-center font-bold text-blue-950 shrink-0">
+            Timeline &rarr; Anomaly Detection &rarr; Reconstruction &rarr; Report
+          </div>
+        </div>
+      </div>
+
+      <!-- Slide 4: How It Works -->
+      <div class="presentation-slide hidden space-y-4 text-center">
+        <span class="badge-pill badge-pill-blue text-xs">SYSTEM ARCHITECTURE</span>
+        <h2 class="text-2xl sm:text-3xl font-extrabold text-blue-950">How It Works: 10-Layer Workflow</h2>
+        
+        <div class="grid grid-cols-2 sm:grid-cols-5 gap-2.5 pt-1 text-left text-xs max-w-4xl mx-auto">
+          <div class="p-2.5 bg-blue-50/60 border border-blue-200 rounded-xl space-y-1">
+            <span class="mono-font text-blue-600 font-bold text-[10px]">01</span>
+            <div class="font-bold text-blue-950 text-[11px]">Evidence Ingestion</div>
+            <p class="text-blue-700 text-[10px]">DBC, CDR, and packet imports.</p>
+          </div>
+          <div class="p-2.5 bg-blue-50/60 border border-blue-200 rounded-xl space-y-1">
+            <span class="mono-font text-blue-600 font-bold text-[10px]">02</span>
+            <div class="font-bold text-blue-950 text-[11px]">Evidence Preprocessing</div>
+            <p class="text-blue-700 text-[10px]">Bit parsing & frame decoding.</p>
+          </div>
+          <div class="p-2.5 bg-blue-50/60 border border-blue-200 rounded-xl space-y-1">
+            <span class="mono-font text-blue-600 font-bold text-[10px]">03</span>
+            <div class="font-bold text-blue-950 text-[11px]">Data Synchronization</div>
+            <p class="text-blue-700 text-[10px]">Sub-millisecond interpolation.</p>
+          </div>
+          <div class="p-2.5 bg-blue-50/60 border border-blue-200 rounded-xl space-y-1">
+            <span class="mono-font text-blue-600 font-bold text-[10px]">04</span>
+            <div class="font-bold text-blue-950 text-[11px]">Common Timeline</div>
+            <p class="text-blue-700 text-[10px]">Unified 100Hz incident stream.</p>
+          </div>
+          <div class="p-2.5 bg-blue-50/60 border border-blue-200 rounded-xl space-y-1">
+            <span class="mono-font text-amber-600 font-bold text-[10px]">05</span>
+            <div class="font-bold text-blue-950 text-[11px]">Anomaly Detection</div>
+            <p class="text-blue-700 text-[10px]">Bus floods & sensor discrepancies.</p>
+          </div>
+          <div class="p-2.5 bg-blue-50/60 border border-blue-200 rounded-xl space-y-1">
+            <span class="mono-font text-emerald-600 font-bold text-[10px]">06</span>
+            <div class="font-bold text-blue-950 text-[11px]">Evidence Correlation</div>
+            <p class="text-blue-700 text-[10px]">Temporal & causal links.</p>
+          </div>
+          <div class="p-2.5 bg-blue-50/60 border border-blue-200 rounded-xl space-y-1">
+            <span class="mono-font text-purple-600 font-bold text-[10px]">07</span>
+            <div class="font-bold text-blue-950 text-[11px]">AI Incident Recon</div>
+            <p class="text-blue-700 text-[10px]">Deterministic kinematics & EKF.</p>
+          </div>
+          <div class="p-2.5 bg-blue-50/60 border border-blue-200 rounded-xl space-y-1">
+            <span class="mono-font text-pink-600 font-bold text-[10px]">08</span>
+            <div class="font-bold text-blue-950 text-[11px]">Explainable Analysis</div>
+            <p class="text-blue-700 text-[10px]">TreeSHAP feature weights.</p>
+          </div>
+          <div class="p-2.5 bg-blue-50/60 border border-blue-200 rounded-xl space-y-1">
+            <span class="mono-font text-blue-600 font-bold text-[10px]">09</span>
+            <div class="font-bold text-blue-950 text-[11px]">Investigator Rec.</div>
+            <p class="text-blue-700 text-[10px]">Forensic action next steps.</p>
+          </div>
+          <div class="p-2.5 bg-blue-50/60 border border-blue-200 rounded-xl space-y-1">
+            <span class="mono-font text-emerald-600 font-bold text-[10px]">10</span>
+            <div class="font-bold text-blue-950 text-[11px]">Forensic Report</div>
+            <p class="text-blue-700 text-[10px]">Court-ready verified dossier.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Slide 5: Core Features -->
+      <div class="presentation-slide hidden space-y-4">
+        <div class="text-center space-y-1">
+          <span class="badge-pill badge-pill-emerald text-xs">CORE CAPABILITIES</span>
+          <h2 class="text-2xl sm:text-4xl font-extrabold text-blue-950">8 Integrated Forensic Features</h2>
+        </div>
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-2 text-xs">
+          <div class="p-3 bg-blue-50/60 border border-blue-200 rounded-xl space-y-1">
+            <div class="text-blue-700 font-bold text-xs"><i class="fa-solid fa-folder-open mr-1"></i> Multi-Source Evidence</div>
+            <p class="text-blue-800 text-[11px]">Ingests CAN DBC, EDR CDR, IMU telemetry, and dashcam video.</p>
+          </div>
+          <div class="p-3 bg-blue-50/60 border border-blue-200 rounded-xl space-y-1">
+            <div class="text-blue-700 font-bold text-xs"><i class="fa-solid fa-clock mr-1"></i> Timeline Reconstruction</div>
+            <p class="text-blue-800 text-[11px]">Unified 100Hz interactive scrubber from t = -5.0s to +2.5s.</p>
+          </div>
+          <div class="p-3 bg-blue-50/60 border border-blue-200 rounded-xl space-y-1">
+            <div class="text-amber-600 font-bold text-xs"><i class="fa-solid fa-network-wired mr-1"></i> CAN Anomaly Detection</div>
+            <p class="text-blue-800 text-[11px]">Identifies message flooding, arbitration delay, and payload tampering.</p>
+          </div>
+          <div class="p-3 bg-blue-50/60 border border-blue-200 rounded-xl space-y-1">
+            <div class="text-emerald-600 font-bold text-xs"><i class="fa-solid fa-link mr-1"></i> Evidence Correlation</div>
+            <p class="text-blue-800 text-[11px]">Correlates digital network events directly with physical vehicle motion.</p>
+          </div>
+          <div class="p-3 bg-blue-50/60 border border-blue-200 rounded-xl space-y-1">
+            <div class="text-purple-600 font-bold text-xs"><i class="fa-solid fa-brain mr-1"></i> AI/ML Reconstruction</div>
+            <p class="text-blue-800 text-[11px]">Kinematic physical boundary validation and planar trajectory replay.</p>
+          </div>
+          <div class="p-3 bg-blue-50/60 border border-blue-200 rounded-xl space-y-1">
+            <div class="text-rose-600 font-bold text-xs"><i class="fa-solid fa-magnifying-glass-chart mr-1"></i> Explainable Findings</div>
+            <p class="text-blue-800 text-[11px]">Shapley attribution weights and transparent confidence indicators.</p>
+          </div>
+          <div class="p-3 bg-blue-50/60 border border-blue-200 rounded-xl space-y-1">
+            <div class="text-blue-700 font-bold text-xs"><i class="fa-solid fa-user-shield mr-1"></i> Investigator Recommendation</div>
+            <p class="text-blue-800 text-[11px]">Automated assessment, "Why?" rationale, and next investigation steps.</p>
+          </div>
+          <div class="p-3 bg-blue-50/60 border border-blue-200 rounded-xl space-y-1">
+            <div class="text-emerald-600 font-bold text-xs"><i class="fa-solid fa-file-contract mr-1"></i> Forensic Reporting</div>
+            <p class="text-blue-800 text-[11px]">SHA-256 verified chain of custody dossier ready for court presentation.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Slide 6: AI-Driven Incident Reconstruction -->
+      <div class="presentation-slide hidden space-y-4 text-center">
+        <span class="badge-pill badge-pill-purple text-xs">PHYSICS + MACHINE LEARNING</span>
+        <h2 class="text-2xl sm:text-3xl font-extrabold text-blue-950">AI-Driven Incident Reconstruction</h2>
+        
+        <p class="text-xs text-blue-800 max-w-2xl mx-auto">
+          How the system unifies multi-channel telemetry into a chronological, verifiable narrative:
+        </p>
+
+        <!-- Chronological Timeline Example -->
+        <div class="p-4 bg-white border border-blue-200 rounded-xl max-w-4xl mx-auto text-left space-y-2.5 text-xs shadow-sm">
+          <div class="text-blue-700 font-bold text-xs uppercase flex items-center gap-1.5">
+            <i class="fa-solid fa-timeline"></i> Correlated Chronological Timeline Example (Case AF-8902)
+          </div>
+          <div class="grid grid-cols-1 sm:grid-cols-5 gap-2">
+            <div class="p-2 bg-blue-50 border border-blue-200 rounded-lg">
+              <span class="text-blue-700 font-bold mono-font">t = -5.0s</span>
+              <div class="font-bold text-blue-950 text-[11px] mt-0.5">Approach</div>
+              <p class="text-[10px] text-blue-700">72 km/h cruise, 48% throttle, nominal CAN load.</p>
+            </div>
+            <div class="p-2 bg-blue-50 border border-blue-200 rounded-lg">
+              <span class="text-blue-700 font-bold mono-font">t = -3.1s</span>
+              <div class="font-bold text-blue-950 text-[11px] mt-0.5">Driver Braking</div>
+              <p class="text-[10px] text-blue-700">EDR switch ACTIVE (82%), accelerator releases to 0%.</p>
+            </div>
+            <div class="p-2 bg-amber-50 border border-amber-200 rounded-lg">
+              <span class="text-amber-700 font-bold mono-font">t = -2.5s</span>
+              <div class="font-bold text-blue-950 text-[11px] mt-0.5">CAN Anomaly</div>
+              <p class="text-[10px] text-blue-700">Bus load spikes to 94%; frame 0x0284 priority flood.</p>
+            </div>
+            <div class="p-2 bg-blue-50 border border-blue-200 rounded-lg">
+              <span class="text-blue-700 font-bold mono-font">t = -1.0s</span>
+              <div class="font-bold text-blue-950 text-[11px] mt-0.5">Delayed Command</div>
+              <p class="text-[10px] text-blue-700">Hydraulic command frame 0x01B0 delayed by 2.1s.</p>
+            </div>
+            <div class="p-2 bg-rose-50 border border-rose-200 rounded-lg">
+              <span class="text-rose-700 font-bold mono-font">t = 0.0s</span>
+              <div class="font-bold text-blue-950 text-[11px] mt-0.5">IMPACT</div>
+              <p class="text-[10px] text-blue-700">Collision at 57.8 km/h; peak deceleration -18.4g.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Slide 7: Stakeholder Action Guidance & Recommendations -->
+      <div class="presentation-slide hidden space-y-4 text-center">
+        <span class="badge-pill badge-pill-blue text-xs">ACTION GUIDANCE LAYER</span>
+        <h2 class="text-2xl sm:text-3xl font-extrabold text-blue-950">Intelligent Recommendation & Stakeholder Guidance</h2>
+        <p class="text-xs text-blue-600 max-w-2xl mx-auto italic font-medium">"Beyond reconstructing what happened — answering who should take action, and what action should they take."</p>
+        
+        <div class="p-5 bg-white border border-blue-200 rounded-2xl max-w-4xl mx-auto text-left space-y-3.5 shadow-sm">
+          <div class="flex justify-between items-center border-b border-blue-100 pb-2">
+            <div>
+              <div class="text-[10px] uppercase font-bold text-blue-600">Dynamic Decision Support</div>
+              <h3 class="text-base font-extrabold text-blue-950">Scenario-Based Multi-Stakeholder Action Guidance</h3>
+            </div>
+            <span class="badge-pill badge-pill-emerald text-xs font-bold">Evidence-Grounded Directives</span>
+          </div>
+
+          <!-- Stakeholder Category Highlights -->
+          <div class="grid grid-cols-2 sm:grid-cols-5 gap-2 text-center text-xs">
+            <div class="p-2 rounded-lg bg-blue-50 border border-blue-200">
+              <div class="font-bold text-blue-950 text-[11px]"><i class="fa-solid fa-user text-blue-600 block mb-1"></i>DRIVER / ROAD USER</div>
+              <div class="text-[9px] text-blue-600 mt-0.5">Reaction & Inattention</div>
+            </div>
+            <div class="p-2 rounded-lg bg-blue-50 border border-blue-200">
+              <div class="font-bold text-blue-950 text-[11px]"><i class="fa-solid fa-industry text-amber-600 block mb-1"></i>VEHICLE MFG</div>
+              <div class="text-[9px] text-blue-600 mt-0.5">ECU & ADAS Calibration</div>
+            </div>
+            <div class="p-2 rounded-lg bg-blue-50 border border-blue-200">
+              <div class="font-bold text-blue-950 text-[11px]"><i class="fa-solid fa-road text-purple-600 block mb-1"></i>ROAD AUTHORITY</div>
+              <div class="text-[9px] text-blue-600 mt-0.5">Signage & Pavement</div>
+            </div>
+            <div class="p-2 rounded-lg bg-blue-50 border border-blue-200">
+              <div class="font-bold text-blue-950 text-[11px]"><i class="fa-solid fa-wrench text-cyan-600 block mb-1"></i>SERVICE / MAINT</div>
+              <div class="text-[9px] text-blue-600 mt-0.5">Hydraulics & Hardware</div>
+            </div>
+            <div class="p-2 rounded-lg bg-blue-50 border border-blue-200 col-span-2 sm:col-span-1">
+              <div class="font-bold text-blue-950 text-[11px]"><i class="fa-solid fa-shield-halved text-rose-600 block mb-1"></i>TRAFFIC / EMERGENCY</div>
+              <div class="text-[9px] text-blue-600 mt-0.5">Glare & Flow Warnings</div>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+            <div class="p-3 bg-blue-50/60 rounded-xl border border-blue-100 space-y-1">
+              <div class="text-blue-700 font-bold text-xs uppercase"><i class="fa-solid fa-list-check mr-1"></i> Evidence Strength Grading</div>
+              <ul class="space-y-1 text-blue-900 text-[11px]">
+                <li>&bull; <strong class="text-emerald-700">Confirmed Evidence:</strong> Deterministic EDR/CAN data match.</li>
+                <li>&bull; <strong class="text-blue-700">Probable Contributing Factor:</strong> Secondary environmental/chassis cues.</li>
+                <li>&bull; <strong class="text-amber-700">Possible Factor:</strong> Kinematic latency or advisory delay.</li>
+                <li>&bull; <strong class="text-gray-700">Insufficient Evidence:</strong> Explicit notice when logs are corrupted.</li>
+              </ul>
+            </div>
+
+            <div class="p-3 bg-blue-50/60 rounded-xl border border-blue-100 space-y-1">
+              <div class="text-blue-700 font-bold text-xs uppercase"><i class="fa-solid fa-chart-pie mr-1"></i> Contributing Factors Summary</div>
+              <p class="text-blue-900 text-[11px] leading-relaxed">
+                Aggregates primary and secondary contributing factors into an explainable matrix (driver action, vehicle subsystem integrity, roadway infrastructure, and environment) — providing defensible decision support without premature legal blame.
+              </p>
+            </div>
+          </div>
+
+          <div class="p-2.5 bg-blue-50/40 rounded-lg border border-blue-100 text-[11px] text-blue-700 text-center">
+            <em>Evidence-Based Forensic Standard: All directives cite specific EDR sensor channels, CAN message IDs, and timestamp correlations.</em>
+          </div>
+        </div>
+      </div>
+
+      <!-- Slide 8: Why AUTO-RECON AI? (Transformation Comparison) -->
+      <div class="presentation-slide hidden space-y-4 text-center">
+        <span class="badge-pill badge-pill-blue text-xs">PARADIGM SHIFT</span>
+        <h2 class="text-2xl sm:text-3xl font-extrabold text-blue-950">Why AUTO-RECON AI?</h2>
+        
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 max-w-4xl mx-auto pt-1 text-left text-xs">
+          <div class="p-3.5 bg-blue-50/60 border border-blue-200 rounded-xl space-y-1">
+            <div class="text-blue-600 text-[10px] uppercase font-bold">From: Fragmented Evidence</div>
+            <div class="text-blue-950 font-extrabold text-sm">&rarr; Unified Investigation</div>
+            <p class="text-[11px] text-blue-800">All vehicle logs correlated into a single investigative workstation.</p>
+          </div>
+          <div class="p-3.5 bg-blue-50/60 border border-blue-200 rounded-xl space-y-1">
+            <div class="text-blue-600 text-[10px] uppercase font-bold">From: Manual Correlation</div>
+            <div class="text-emerald-700 font-extrabold text-sm">&rarr; Automated Correlation</div>
+            <p class="text-[11px] text-blue-800">Sub-millisecond synchronization aligns clocks automatically.</p>
+          </div>
+          <div class="p-3.5 bg-blue-50/60 border border-blue-200 rounded-xl space-y-1">
+            <div class="text-blue-600 text-[10px] uppercase font-bold">From: Raw Events</div>
+            <div class="text-purple-700 font-extrabold text-sm">&rarr; Common Incident Timeline</div>
+            <p class="text-[11px] text-blue-800">Continuous 100Hz playback of pre-crash and crash dynamics.</p>
+          </div>
+          <div class="p-3.5 bg-blue-50/60 border border-blue-200 rounded-xl space-y-1">
+            <div class="text-blue-600 text-[10px] uppercase font-bold">From: Complex Data</div>
+            <div class="text-rose-700 font-extrabold text-sm">&rarr; Explainable Findings</div>
+            <p class="text-[11px] text-blue-800">Mathematical TreeSHAP attribution explains each finding.</p>
+          </div>
+          <div class="p-3.5 bg-blue-50/60 border border-blue-200 rounded-xl space-y-1">
+            <div class="text-blue-600 text-[10px] uppercase font-bold">From: Disconnected Analysis</div>
+            <div class="text-amber-700 font-extrabold text-sm">&rarr; Investigator Recommendation</div>
+            <p class="text-[11px] text-blue-800">Evidence-based decision support and concrete next steps.</p>
+          </div>
+          <div class="p-3.5 bg-blue-50/60 border border-blue-200 rounded-xl space-y-1">
+            <div class="text-blue-600 text-[10px] uppercase font-bold">From: Raw File Dumps</div>
+            <div class="text-blue-700 font-extrabold text-sm">&rarr; Structured Forensic Report</div>
+            <p class="text-[11px] text-blue-800">Cryptographically verifiable, court-ready PDF dossier.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Slide 9: Target Applications & Future Scope -->
+      <div class="presentation-slide hidden space-y-4 text-center">
+        <span class="badge-pill badge-pill-emerald text-xs">TARGET & ROADMAP</span>
+        <h2 class="text-2xl sm:text-3xl font-extrabold text-blue-950">Target Applications & Future Scope</h2>
+        
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-left text-xs max-w-4xl mx-auto pt-1">
+          <!-- Target Applications -->
+          <div class="p-4 bg-blue-50/60 border border-blue-200 rounded-xl space-y-2">
+            <div class="text-blue-700 font-bold text-xs uppercase flex items-center gap-2">
+              <i class="fa-solid fa-crosshairs"></i> Target Applications
+            </div>
+            <ul class="space-y-1.5 text-blue-900 text-[11px]">
+              <li>&bull; <strong>Automotive Digital Forensics:</strong> Law enforcement and field accident reconstruction units.</li>
+              <li>&bull; <strong>Vehicle Cybersecurity:</strong> OEM red-teams and connected vehicle security operations (vSOC).</li>
+              <li>&bull; <strong>Research Laboratories:</strong> Tier-1 active safety and automated driving research centers.</li>
+              <li>&bull; <strong>Academic Institutions:</strong> Cybersecurity, forensics, and intelligent vehicle laboratories.</li>
+              <li>&bull; <strong>Insurance Investigation:</strong> Disputed automated driving liability and crash causation.</li>
+            </ul>
+          </div>
+
+          <!-- Future Scope -->
+          <div class="p-4 bg-blue-50/60 border border-blue-200 rounded-xl space-y-2">
+            <div class="text-emerald-700 font-bold text-xs uppercase flex items-center gap-2">
+              <i class="fa-solid fa-rocket"></i> Future Development Roadmap
+            </div>
+            <ul class="space-y-1.5 text-blue-900 text-[11px]">
+              <li>&bull; <strong>Real Vehicle / ECU Integrations:</strong> Hardware-in-the-Loop (HIL) bench test pipelines.</li>
+              <li>&bull; <strong>Larger Forensic Datasets:</strong> Integration with NHTSA CISS and ORNL ROAD repositories.</li>
+              <li>&bull; <strong>Advanced ML Models:</strong> Transformer-based sequential anomaly detection on CAN-FD.</li>
+              <li>&bull; <strong>Real-Time Monitoring:</strong> In-vehicle edge telemetry logging & instant alert generation.</li>
+              <li>&bull; <strong>Cloud Collaboration:</strong> Multi-agency secure forensic workspaces with RBAC.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- Slide 10: Final Pitch -->
+      <div class="presentation-slide hidden space-y-5 text-center">
+        <span class="badge-pill badge-pill-blue text-xs">CONCLUSION</span>
+        <h1 class="text-3xl sm:text-5xl font-black text-blue-950 leading-tight">
+          AUTO-RECON <span class="text-blue-600">AI</span>
+        </h1>
+        <h3 class="text-lg sm:text-2xl font-bold text-blue-900">
+          Reconstructing the Story Behind Automotive Incidents
+        </h3>
+        
+        <div class="p-6 rounded-2xl bg-blue-50/80 border border-blue-200 text-left max-w-3xl mx-auto shadow-sm space-y-3">
+          <p class="text-xs sm:text-sm text-blue-950 leading-relaxed italic">
+            "AUTO-RECON AI aims to transform fragmented automotive evidence into a structured, explainable investigation workflow — helping investigators understand events, correlate evidence, reconstruct incidents, and identify the next steps for forensic analysis."
+          </p>
+        </div>
+
+        <div class="pt-3">
+          <div class="text-base sm:text-xl font-black tracking-widest text-blue-600 uppercase">
+            Collect. Correlate. Reconstruct. Explain.
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Footer Controls -->
+    <div class="flex justify-between items-center border-t border-blue-200 pt-3">
+      <button id="btn-prev-slide" class="px-4 py-2 bg-blue-50 hover:bg-blue-100 text-blue-700 border border-blue-200 rounded-full text-xs font-semibold transition">
+        <i class="fa-solid fa-chevron-left mr-1"></i> Previous
+      </button>
+      <div class="text-xs text-blue-600 font-mono">Use Arrow keys &bull; AUTO-RECON AI</div>
+      <button id="btn-next-slide" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-full text-xs font-bold text-white transition">
+        Next <i class="fa-solid fa-chevron-right ml-1"></i>
+      </button>
+    </div>
+  </div>
+
+  <!-- Load Datasets & Main App Engine -->
+  <script src="sample-data.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,555 @@
+{
+  "id": "CASE_DS_20261024_509424f2",
+  "title": "Custom Dataset Case: auto_recon_synthetic_angle_crash.csv",
+  "shortTitle": "Custom Dataset Case: auto_recon_synthetic_angle_crash.csv",
+  "scenarioType": "Angle Collision \u2014 Dataset Kinematic Reconstruct",
+  "primaryDataSources": [
+    "Telemetry CSV Ingest",
+    "IMU Deceleration",
+    "Steering Transducers",
+    "FIPS 180-4 Verified"
+  ],
+  "vehicleInfo": {
+    "make": "Vehicle Dynamics",
+    "model": "Sedan Telemetry Test",
+    "year": "2024",
+    "vin": "SYNTHANGLE202401",
+    "ecuFirmware": "v2.4.1-telemetry",
+    "edrModule": "Bosch CDR Gen 4"
+  },
+  "incidentTime": "2026-10-24 05:49:28 UTC",
+  "location": {
+    "address": "Proving Ground Telemetry Track, Sector 4",
+    "lat": 28.6139,
+    "lng": 77.209,
+    "speedLimit": 70,
+    "roadCondition": "Dry Asphalt, Daylight"
+  },
+  "status": "ANALYZED",
+  "evidenceCount": 1,
+  "evidenceHashes": [
+    {
+      "id": "ev-DS-20261024-509424f2",
+      "source": "auto_recon_synthetic_angle_crash.csv",
+      "size": "0.00 MB",
+      "sha256": "c92b1732caa80153959a8b813230b0040565fbcad549c40d02b104a21b05d69b",
+      "trusted_reference": "c92b1732caa80153959a8b813230b0040565fbcad549c40d02b104a21b05d69b",
+      "status": "VERIFIED",
+      "timestamp": "2026-10-24 05:49:28 UTC",
+      "verifiedBy": "FastAPI Disk Hash Match (FIPS 180-4)"
+    }
+  ],
+  "summary": "Incident analysis reconstructed from uploaded dataset auto_recon_synthetic_angle_crash.csv. Origin: SYNTHETIC. Predicted Severity: MINOR_MODERATE_INJURY.",
+  "summaryTags": [
+    "Dataset Ingestion",
+    "Angle Collision",
+    "FIPS 180-4 Verified",
+    "Active Telemetry"
+  ],
+  "vehicles": [
+    {
+      "id": "VEHICLE-A",
+      "make": "Vehicle Dynamics",
+      "model": "Sedan Telemetry Test",
+      "year": "2024",
+      "vin": "SYNTHANGLE202401",
+      "role": "Subject Vehicle",
+      "color": "#0284c7"
+    }
+  ],
+  "milestones": [
+    {
+      "t": 0.6,
+      "label": "BRAKING STARTED",
+      "desc": "Observed event 'braking started' at t=0.6s",
+      "type": "action"
+    },
+    {
+      "t": 0.8,
+      "label": "HARD BRAKING",
+      "desc": "Observed event 'hard braking' at t=0.8s",
+      "type": "action"
+    },
+    {
+      "t": 1.0,
+      "label": "STEERING EVASION",
+      "desc": "Observed event 'steering evasion' at t=1.0s",
+      "type": "action"
+    },
+    {
+      "t": 1.4,
+      "label": "IMPACT APPROACH",
+      "desc": "Observed event 'impact approach' at t=1.4s",
+      "type": "impact"
+    },
+    {
+      "t": 2.0,
+      "label": "ESTIMATED IMPACT",
+      "desc": "Observed event 'estimated impact' at t=2.0s",
+      "type": "impact"
+    },
+    {
+      "t": 2.2,
+      "label": "POST IMPACT DECELERATION",
+      "desc": "Observed event 'post impact deceleration' at t=2.2s",
+      "type": "impact"
+    },
+    {
+      "t": 2.6,
+      "label": "VEHICLE STOPPED",
+      "desc": "Observed event 'vehicle stopped' at t=2.6s",
+      "type": "nominal"
+    }
+  ],
+  "timelineMilestones": [
+    {
+      "t": 0.6,
+      "label": "BRAKING STARTED",
+      "desc": "Observed event 'braking started' at t=0.6s",
+      "type": "action"
+    },
+    {
+      "t": 0.8,
+      "label": "HARD BRAKING",
+      "desc": "Observed event 'hard braking' at t=0.8s",
+      "type": "action"
+    },
+    {
+      "t": 1.0,
+      "label": "STEERING EVASION",
+      "desc": "Observed event 'steering evasion' at t=1.0s",
+      "type": "action"
+    },
+    {
+      "t": 1.4,
+      "label": "IMPACT APPROACH",
+      "desc": "Observed event 'impact approach' at t=1.4s",
+      "type": "impact"
+    },
+    {
+      "t": 2.0,
+      "label": "ESTIMATED IMPACT",
+      "desc": "Observed event 'estimated impact' at t=2.0s",
+      "type": "impact"
+    },
+    {
+      "t": 2.2,
+      "label": "POST IMPACT DECELERATION",
+      "desc": "Observed event 'post impact deceleration' at t=2.2s",
+      "type": "impact"
+    },
+    {
+      "t": 2.6,
+      "label": "VEHICLE STOPPED",
+      "desc": "Observed event 'vehicle stopped' at t=2.6s",
+      "type": "nominal"
+    }
+  ],
+  "telemetry": [
+    {
+      "t": 0.0,
+      "speed": 72.0,
+      "speedKph": 72.0,
+      "accel": -0.02,
+      "accelG": -0.02,
+      "longG": -0.02,
+      "latG": 0.01,
+      "brake": 0.0,
+      "throttle": 18.0,
+      "steer": 0.0,
+      "yaw": 0.0,
+      "headingDeg": 0.0,
+      "posX": 0.0,
+      "posY": 0.0,
+      "deltaV": 0.0,
+      "event": "normal_driving",
+      "notes": "Nominal path"
+    },
+    {
+      "t": 0.2,
+      "speed": 72.0,
+      "speedKph": 72.0,
+      "accel": -0.03,
+      "accelG": -0.03,
+      "longG": -0.03,
+      "latG": 0.01,
+      "brake": 0.0,
+      "throttle": 18.0,
+      "steer": 0.0,
+      "yaw": 0.0,
+      "headingDeg": 0.0,
+      "posX": 4.0,
+      "posY": 0.0,
+      "deltaV": 0.0,
+      "event": "normal_driving",
+      "notes": "Nominal path"
+    },
+    {
+      "t": 0.4,
+      "speed": 71.0,
+      "speedKph": 71.0,
+      "accel": -0.05,
+      "accelG": -0.05,
+      "longG": -0.05,
+      "latG": 0.02,
+      "brake": 0.0,
+      "throttle": 17.0,
+      "steer": 1.0,
+      "yaw": 1.0,
+      "headingDeg": 1.0,
+      "posX": 7.9,
+      "posY": 0.1,
+      "deltaV": 0.0,
+      "event": "normal_driving",
+      "notes": "Nominal path"
+    },
+    {
+      "t": 0.6,
+      "speed": 71.0,
+      "speedKph": 71.0,
+      "accel": -0.08,
+      "accelG": -0.08,
+      "longG": -0.08,
+      "latG": 0.03,
+      "brake": 100.0,
+      "throttle": 10.0,
+      "steer": 2.0,
+      "yaw": 2.0,
+      "headingDeg": 2.0,
+      "posX": 11.8,
+      "posY": 0.1,
+      "deltaV": 0.0,
+      "event": "braking_started",
+      "notes": "Event: Braking started"
+    },
+    {
+      "t": 0.8,
+      "speed": 69.0,
+      "speedKph": 69.0,
+      "accel": -0.25,
+      "accelG": -0.25,
+      "longG": -0.25,
+      "latG": 0.08,
+      "brake": 100.0,
+      "throttle": 0.0,
+      "steer": 5.0,
+      "yaw": 5.0,
+      "headingDeg": 5.0,
+      "posX": 15.6,
+      "posY": 0.2,
+      "deltaV": 0.0,
+      "event": "hard_braking",
+      "notes": "Event: Hard braking"
+    },
+    {
+      "t": 1.0,
+      "speed": 65.0,
+      "speedKph": 65.0,
+      "accel": -0.49,
+      "accelG": -0.49,
+      "longG": -0.49,
+      "latG": 0.14,
+      "brake": 100.0,
+      "throttle": 0.0,
+      "steer": 9.0,
+      "yaw": 10.0,
+      "headingDeg": 10.0,
+      "posX": 19.2,
+      "posY": 0.5,
+      "deltaV": 0.0,
+      "event": "steering_evasion",
+      "notes": "Event: Steering evasion"
+    },
+    {
+      "t": 1.2,
+      "speed": 59.0,
+      "speedKph": 59.0,
+      "accel": -0.63,
+      "accelG": -0.63,
+      "longG": -0.63,
+      "latG": 0.21,
+      "brake": 100.0,
+      "throttle": 0.0,
+      "steer": 14.0,
+      "yaw": 18.0,
+      "headingDeg": 18.0,
+      "posX": 22.4,
+      "posY": 1.0,
+      "deltaV": 0.0,
+      "event": "steering_evasion",
+      "notes": "Event: Steering evasion"
+    },
+    {
+      "t": 1.4,
+      "speed": 52.0,
+      "speedKph": 52.0,
+      "accel": -0.71,
+      "accelG": -0.71,
+      "longG": -0.71,
+      "latG": 0.29,
+      "brake": 100.0,
+      "throttle": 0.0,
+      "steer": 18.0,
+      "yaw": 28.0,
+      "headingDeg": 28.0,
+      "posX": 25.1,
+      "posY": 1.5,
+      "deltaV": 0.0,
+      "event": "impact_approach",
+      "notes": "Event: Impact approach"
+    },
+    {
+      "t": 1.6,
+      "speed": 44.0,
+      "speedKph": 44.0,
+      "accel": -0.87,
+      "accelG": -0.87,
+      "longG": -0.87,
+      "latG": 0.32,
+      "brake": 100.0,
+      "throttle": 0.0,
+      "steer": 22.0,
+      "yaw": 35.0,
+      "headingDeg": 35.0,
+      "posX": 27.0,
+      "posY": 2.0,
+      "deltaV": 0.0,
+      "event": "impact_approach",
+      "notes": "Event: Impact approach"
+    },
+    {
+      "t": 1.8,
+      "speed": 36.0,
+      "speedKph": 36.0,
+      "accel": -1.02,
+      "accelG": -1.02,
+      "longG": -1.02,
+      "latG": 0.25,
+      "brake": 100.0,
+      "throttle": 0.0,
+      "steer": 24.0,
+      "yaw": 42.0,
+      "headingDeg": 42.0,
+      "posX": 28.1,
+      "posY": 2.5,
+      "deltaV": 0.0,
+      "event": "impact_approach",
+      "notes": "Event: Impact approach"
+    },
+    {
+      "t": 2.0,
+      "speed": 30.0,
+      "speedKph": 30.0,
+      "accel": -1.22,
+      "accelG": -1.22,
+      "longG": -1.22,
+      "latG": 0.12,
+      "brake": 100.0,
+      "throttle": 0.0,
+      "steer": 18.0,
+      "yaw": 35.0,
+      "headingDeg": 35.0,
+      "posX": 29.0,
+      "posY": 3.0,
+      "deltaV": 3.0,
+      "event": "estimated_impact",
+      "notes": "Event: Estimated impact"
+    },
+    {
+      "t": 2.2,
+      "speed": 18.0,
+      "speedKph": 18.0,
+      "accel": -1.53,
+      "accelG": -1.53,
+      "longG": -1.53,
+      "latG": 0.05,
+      "brake": 100.0,
+      "throttle": 0.0,
+      "steer": 8.0,
+      "yaw": 25.0,
+      "headingDeg": 25.0,
+      "posX": 29.4,
+      "posY": 20.0,
+      "deltaV": 20.0,
+      "event": "post_impact_deceleration",
+      "notes": "Event: Post impact deceleration"
+    },
+    {
+      "t": 2.4,
+      "speed": 8.0,
+      "speedKph": 8.0,
+      "accel": -1.22,
+      "accelG": -1.22,
+      "longG": -1.22,
+      "latG": 0.02,
+      "brake": 100.0,
+      "throttle": 0.0,
+      "steer": 3.0,
+      "yaw": 20.0,
+      "headingDeg": 20.0,
+      "posX": 29.5,
+      "posY": 38.0,
+      "deltaV": 38.0,
+      "event": "post_impact_deceleration",
+      "notes": "Event: Post impact deceleration"
+    },
+    {
+      "t": 2.6,
+      "speed": 2.0,
+      "speedKph": 2.0,
+      "accel": -0.51,
+      "accelG": -0.51,
+      "longG": -0.51,
+      "latG": 0.0,
+      "brake": 100.0,
+      "throttle": 0.0,
+      "steer": 0.0,
+      "yaw": 18.0,
+      "headingDeg": 18.0,
+      "posX": 29.5,
+      "posY": 40.0,
+      "deltaV": 40.0,
+      "event": "vehicle_stopped",
+      "notes": "Event: Vehicle stopped"
+    },
+    {
+      "t": 2.8,
+      "speed": 0.0,
+      "speedKph": 0.0,
+      "accel": -0.05,
+      "accelG": -0.05,
+      "longG": -0.05,
+      "latG": 0.0,
+      "brake": 100.0,
+      "throttle": 0.0,
+      "steer": 0.0,
+      "yaw": 18.0,
+      "headingDeg": 18.0,
+      "posX": 29.5,
+      "posY": 40.0,
+      "deltaV": 40.0,
+      "event": "vehicle_stopped",
+      "notes": "Event: Vehicle stopped"
+    },
+    {
+      "t": 3.0,
+      "speed": 0.0,
+      "speedKph": 0.0,
+      "accel": 0.0,
+      "accelG": 0.0,
+      "longG": 0.0,
+      "latG": 0.0,
+      "brake": 100.0,
+      "throttle": 0.0,
+      "steer": 0.0,
+      "yaw": 18.0,
+      "headingDeg": 18.0,
+      "posX": 29.5,
+      "posY": 40.0,
+      "deltaV": 40.0,
+      "event": "vehicle_stopped",
+      "notes": "Event: Vehicle stopped"
+    }
+  ],
+  "canBusData": [
+    {
+      "t": 0.6,
+      "id": "0x0180",
+      "name": "BRAKING STARTED",
+      "dlc": 8,
+      "payload": "00 00 00 00",
+      "status": "VERIFIED",
+      "value": "Observed event 'braking started' at t=0.6s"
+    },
+    {
+      "t": 0.8,
+      "id": "0x0180",
+      "name": "HARD BRAKING",
+      "dlc": 8,
+      "payload": "00 00 00 00",
+      "status": "VERIFIED",
+      "value": "Observed event 'hard braking' at t=0.8s"
+    },
+    {
+      "t": 1.0,
+      "id": "0x0180",
+      "name": "STEERING EVASION",
+      "dlc": 8,
+      "payload": "00 00 00 00",
+      "status": "VERIFIED",
+      "value": "Observed event 'steering evasion' at t=1.0s"
+    },
+    {
+      "t": 1.4,
+      "id": "0x0180",
+      "name": "IMPACT APPROACH",
+      "dlc": 8,
+      "payload": "00 00 00 00",
+      "status": "VERIFIED",
+      "value": "Observed event 'impact approach' at t=1.4s"
+    },
+    {
+      "t": 2.0,
+      "id": "0x0180",
+      "name": "ESTIMATED IMPACT",
+      "dlc": 8,
+      "payload": "00 00 00 00",
+      "status": "VERIFIED",
+      "value": "Observed event 'estimated impact' at t=2.0s"
+    },
+    {
+      "t": 2.2,
+      "id": "0x0180",
+      "name": "POST IMPACT DECELERATION",
+      "dlc": 8,
+      "payload": "00 00 00 00",
+      "status": "VERIFIED",
+      "value": "Observed event 'post impact deceleration' at t=2.2s"
+    },
+    {
+      "t": 2.6,
+      "id": "0x0180",
+      "name": "VEHICLE STOPPED",
+      "dlc": 8,
+      "payload": "00 00 00 00",
+      "status": "VERIFIED",
+      "value": "Observed event 'vehicle stopped' at t=2.6s"
+    }
+  ],
+  "edrData": [
+    {
+      "parameter": "Data Origin",
+      "value": "SYNTHETIC",
+      "status": "VERIFIED"
+    },
+    {
+      "parameter": "Initial Velocity",
+      "value": "72.0 km/h",
+      "status": "VERIFIED"
+    },
+    {
+      "parameter": "Max Deceleration (Long)",
+      "value": "-1.53 g",
+      "status": "VERIFIED"
+    },
+    {
+      "parameter": "Impact Delta-V",
+      "value": "40.0 km/h",
+      "status": "VERIFIED"
+    }
+  ],
+  "aiVerdict": {
+    "primaryCause": "Dataset-driven scenario: SYNTHETIC crash profile",
+    "confidence": 43.9,
+    "driverActionVerified": "Physical trajectory reconstructed strictly from recorded telemetry points.",
+    "supportingEvidence": [
+      "Recorded speed profile decels from 72.0 km/h down to rest",
+      "Braking and steering inputs extracted from auto_recon_synthetic_angle_crash.csv",
+      "Cryptographic SHA-256 integrity verified (c92b1732caa80153...)"
+    ],
+    "humanError": 20.0,
+    "mechanicalFailure": 5.0,
+    "latencyImpact": 0.0,
+    "evidenceCorrelations": "Predicted severity class: MINOR_MODERATE_INJURY"
+  }
+}

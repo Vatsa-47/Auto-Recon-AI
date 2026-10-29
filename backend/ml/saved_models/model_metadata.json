@@ -1,0 +1,178 @@
+{
+  "dataset_name": "NHTSA Fatality Analysis Reporting System (FARS) 2024 National Release",
+  "dataset_year": 2024,
+  "source_url": "https://static.nhtsa.gov/nhtsa/downloads/FARS/2024/National/FARS2024NationalCSV.zip",
+  "target_variable": "injury_severity (KABCO 4-Class Scale)",
+  "classes": [
+    "PROPERTY_DAMAGE_ONLY",
+    "MINOR_MODERATE_INJURY",
+    "SERIOUS_INCAPACITATING",
+    "FATAL_CATASTROPHIC"
+  ],
+  "sample_count": 54374,
+  "train_samples": 38061,
+  "val_samples": 8156,
+  "test_samples": 8157,
+  "input_dim": 20,
+  "num_classes": 4,
+  "continuous_features": [
+    "pre_impact_speed_kph",
+    "delta_v_kph"
+  ],
+  "categorical_features": [
+    "brake_applied",
+    "seatbelt_latched",
+    "airbag_deployed",
+    "collision_type",
+    "road_condition",
+    "vehicle_weight_class"
+  ],
+  "pytorch_evaluation": {
+    "accuracy": 0.590045359813657,
+    "macro_f1": 0.5069708931066002,
+    "weighted_f1": 0.6149674351367204,
+    "test_loss": 1.0693597793579102,
+    "confusion_matrix": [
+      [
+        1943,
+        284,
+        149,
+        125
+      ],
+      [
+        315,
+        426,
+        391,
+        177
+      ],
+      [
+        55,
+        130,
+        296,
+        170
+      ],
+      [
+        307,
+        386,
+        855,
+        2148
+      ]
+    ],
+    "classification_report": {
+      "PROPERTY_DAMAGE_ONLY": {
+        "precision": 0.7416030534351145,
+        "recall": 0.7768892443022791,
+        "f1-score": 0.7588361648115602,
+        "support": 2501.0
+      },
+      "MINOR_MODERATE_INJURY": {
+        "precision": 0.3474714518760196,
+        "recall": 0.3254392666157372,
+        "f1-score": 0.336094674556213,
+        "support": 1309.0
+      },
+      "SERIOUS_INCAPACITATING": {
+        "precision": 0.17504435245416913,
+        "recall": 0.45468509984639016,
+        "f1-score": 0.2527754056362084,
+        "support": 651.0
+      },
+      "FATAL_CATASTROPHIC": {
+        "precision": 0.8198473282442749,
+        "recall": 0.5811688311688312,
+        "f1-score": 0.6801773274224192,
+        "support": 3696.0
+      },
+      "accuracy": 0.590045359813657,
+      "macro avg": {
+        "precision": 0.5209915465023944,
+        "recall": 0.5345456104833095,
+        "f1-score": 0.5069708931066002,
+        "support": 8157.0
+      },
+      "weighted avg": {
+        "precision": 0.6685912671062197,
+        "recall": 0.590045359813657,
+        "f1-score": 0.6149674351367204,
+        "support": 8157.0
+      }
+    }
+  },
+  "baseline_evaluation": {
+    "model_type": "RandomForestClassifier",
+    "accuracy": 0.576805197989457,
+    "macro_f1": 0.4999417099541853,
+    "weighted_f1": 0.6073668447720747,
+    "confusion_matrix": [
+      [
+        1867,
+        345,
+        162,
+        127
+      ],
+      [
+        276,
+        484,
+        368,
+        181
+      ],
+      [
+        43,
+        178,
+        270,
+        160
+      ],
+      [
+        258,
+        525,
+        829,
+        2084
+      ]
+    ],
+    "classification_report": {
+      "PROPERTY_DAMAGE_ONLY": {
+        "precision": 0.763911620294599,
+        "recall": 0.7465013994402239,
+        "f1-score": 0.7551061678463094,
+        "support": 2501.0
+      },
+      "MINOR_MODERATE_INJURY": {
+        "precision": 0.31592689295039167,
+        "recall": 0.3697478991596639,
+        "f1-score": 0.3407250967969025,
+        "support": 1309.0
+      },
+      "SERIOUS_INCAPACITATING": {
+        "precision": 0.16574585635359115,
+        "recall": 0.4147465437788018,
+        "f1-score": 0.23684210526315788,
+        "support": 651.0
+      },
+      "FATAL_CATASTROPHIC": {
+        "precision": 0.8166144200626959,
+        "recall": 0.5638528138528138,
+        "f1-score": 0.6670934699103713,
+        "support": 3696.0
+      },
+      "accuracy": 0.576805197989457,
+      "macro avg": {
+        "precision": 0.5155496974153194,
+        "recall": 0.5237121640578759,
+        "f1-score": 0.4999417099541853,
+        "support": 8157.0
+      },
+      "weighted avg": {
+        "precision": 0.6681621569531404,
+        "recall": 0.576805197989457,
+        "f1-score": 0.6073668447720747,
+        "support": 8157.0
+      }
+    }
+  },
+  "limitations": [
+    "FARS census records fatal incidents; non-fatal outcomes represent vehicles involved in fatal collisions.",
+    "Crash velocity change (Delta-V) is estimated via Campbell crush energy mechanics and impact geometry.",
+    "Predictions reflect statistical risk heuristics and do not substitute for on-site physical reconstruction."
+  ],
+  "trained_at": "2026-10-23T15:53:08.477657+00:00"
+}

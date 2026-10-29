@@ -1,0 +1,17 @@
+case_id,vehicle_id,time_s,speed_kph,longitudinal_accel_mps2,lateral_accel_mps2,steering_angle_deg,brake_applied,throttle_pct,heading_deg,position_x_m,position_y_m,delta_v_kph,event_label,collision_type,road_condition,vehicle_weight_class,airbag_deployed,seatbelt_latched,data_origin
+SYNTH-ANGLE-001,VEHICLE-A,0.0,72,-0.2,0.1,0,false,18,0,0,0,0,normal_driving,ANGLE,DRY,SEDAN,false,true,SYNTHETIC
+SYNTH-ANGLE-001,VEHICLE-A,0.2,72,-0.3,0.1,0,false,18,0,4,0,0,normal_driving,ANGLE,DRY,SEDAN,false,true,SYNTHETIC
+SYNTH-ANGLE-001,VEHICLE-A,0.4,71,-0.5,0.2,1,false,17,1,7.9,0.1,0,normal_driving,ANGLE,DRY,SEDAN,false,true,SYNTHETIC
+SYNTH-ANGLE-001,VEHICLE-A,0.6,71,-0.8,0.3,2,true,10,2,11.8,0.1,0,braking_started,ANGLE,DRY,SEDAN,false,true,SYNTHETIC
+SYNTH-ANGLE-001,VEHICLE-A,0.8,69,-2.5,0.8,5,true,0,5,15.6,0.2,0,hard_braking,ANGLE,DRY,SEDAN,false,true,SYNTHETIC
+SYNTH-ANGLE-001,VEHICLE-A,1.0,65,-4.8,1.4,9,true,0,10,19.2,0.5,0,steering_evasion,ANGLE,DRY,SEDAN,false,true,SYNTHETIC
+SYNTH-ANGLE-001,VEHICLE-A,1.2,59,-6.2,2.1,14,true,0,18,22.4,1.0,0,steering_evasion,ANGLE,DRY,SEDAN,false,true,SYNTHETIC
+SYNTH-ANGLE-001,VEHICLE-A,1.4,52,-7.0,2.8,18,true,0,28,25.1,1.5,0,impact_approach,ANGLE,DRY,SEDAN,false,true,SYNTHETIC
+SYNTH-ANGLE-001,VEHICLE-A,1.6,44,-8.5,3.1,22,true,0,35,27.0,2.0,0,impact_approach,ANGLE,DRY,SEDAN,false,true,SYNTHETIC
+SYNTH-ANGLE-001,VEHICLE-A,1.8,36,-10.0,2.5,24,true,0,42,28.1,2.5,0,impact_approach,ANGLE,DRY,SEDAN,false,true,SYNTHETIC
+SYNTH-ANGLE-001,VEHICLE-A,2.0,30,-12.0,1.2,18,true,0,35,29.0,3.0,3,estimated_impact,ANGLE,DRY,SEDAN,true,true,SYNTHETIC
+SYNTH-ANGLE-001,VEHICLE-A,2.2,18,-15.0,0.5,8,true,0,25,29.4,20,20,post_impact_deceleration,ANGLE,DRY,SEDAN,true,true,SYNTHETIC
+SYNTH-ANGLE-001,VEHICLE-A,2.4,8,-12.0,0.2,3,true,0,20,29.5,38,38,post_impact_deceleration,ANGLE,DRY,SEDAN,true,true,SYNTHETIC
+SYNTH-ANGLE-001,VEHICLE-A,2.6,2,-5.0,0.0,0,true,0,18,29.5,40,40,vehicle_stopped,ANGLE,DRY,SEDAN,true,true,SYNTHETIC
+SYNTH-ANGLE-001,VEHICLE-A,2.8,0,-0.5,0.0,0,true,0,18,29.5,40,40,vehicle_stopped,ANGLE,DRY,SEDAN,true,true,SYNTHETIC
+SYNTH-ANGLE-001,VEHICLE-A,3.0,0,0.0,0.0,0,true,0,18,29.5,40,40,vehicle_stopped,ANGLE,DRY,SEDAN,true,true,SYNTHETIC
