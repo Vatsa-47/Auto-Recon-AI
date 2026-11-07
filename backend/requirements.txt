@@ -1,5 +1,5 @@
 # ====================================================================
-# AUTO-RECON AI — Python 3.12 Backend Dependencies
+# AUTO-RECON AI — Python 3.12 Backend Production Dependencies
 # Mandatory Stack: FastAPI, PyTorch, MySQL (SQLAlchemy 2.x), Scikit-Learn
 # ====================================================================
 
@@ -21,7 +21,7 @@ pandas>=2.2.0
 numpy>=1.26.0
 scikit-learn>=1.4.0
 joblib>=1.3.0
+reportlab>=4.0.0
 
-# Testing & Client
+# Client & Networking
 httpx>=0.27.0
-pytest>=8.0.0

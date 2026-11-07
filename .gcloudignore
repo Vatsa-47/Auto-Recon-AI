@@ -1,0 +1,58 @@
+# Google Cloud / Cloud Functions Deployment Ignore Rules
+# Keep bundle under 500 MB limit
+
+.git/
+.gitignore
+.gcloudignore
+.git-backup-*/
+
+# Local Virtual Environments
+.venv/
+venv/
+env/
+
+# Python caches and bytecode
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache/
+
+# Test suites and test files
+tests/
+backend/tests/
+test_*.py
+*_test.py
+
+# Build outputs and dependencies
+node_modules/
+target/
+**/target/
+spring-backend/
+
+# Local backups and project report packs
+AUTO_RECON_REPORT_SOURCE_PACK/
+AUTO_RECON_REPORT_SOURCE_PACK.zip
+backup_*/
+design prj/
+review_ii_screenshots/
+review_ii_screenshots.zip
+
+# Large raw datasets & zips
+backend/ml/data/fars2024/FARS2024NationalCSV.zip
+*.zip
+*.tar.gz
+
+# Forensic storage outputs
+backend/storage/reports/
+backend/storage/datasets/
+
+# Static Frontend Assets (Frontend is served via Hosting/CDN, not backend function bundle)
+index.html
+styles.css
+app.js
+sample-data.js
+capture_frontend.py
+presentation.md
+AUTO_RECON_AI_RESEARCH_PAPER.md
+README.md

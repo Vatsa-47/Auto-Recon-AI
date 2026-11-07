@@ -66,8 +66,8 @@ def get_database_url_safe(url: str = DATABASE_URL) -> str:
 # Legacy SQLite DB path (retained ONLY for inspection and one-time migration verification)
 DB_PATH = Path(os.getenv("AUTORECON_DB_PATH", BASE_DIR / "autorecon.db"))
 
-# ML Model artifact directory
-ML_MODELS_DIR = BASE_DIR / "ml" / "saved_models"
+# ML Model artifact directory (Supports external storage / cloud mounts via AUTORECON_MODELS_DIR)
+ML_MODELS_DIR = Path(os.getenv("AUTORECON_MODELS_DIR", BASE_DIR / "ml" / "saved_models"))
 ML_MODELS_DIR.mkdir(parents=True, exist_ok=True)
 
 CORS_ORIGINS = [

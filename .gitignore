@@ -1,9 +1,41 @@
+# Virtual Environment & Local Tooling
 .venv/
+venv/
+env/
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyd
+.pytest_cache/
+
+# Build Output & Target Folders
 **/target/
 **/node_modules/
-**/__pycache__/
-*.py[cod]
-.env
-backend/ml/data/fars2024/FARS2024NationalCSV/
+dist/
+build/
 
+# Environment & Credentials
+.env
+*.env.local
+
+# Git Backups & Redundant Archives
 .git-backup-*/
+*.zip
+*.tar.gz
+
+# Design Project Reports & Large Reference Assets (Kept locally, excluded from VCS / Bundles)
+AUTO_RECON_REPORT_SOURCE_PACK/
+review_ii_screenshots/
+backup_*/
+design prj/
+
+# Temporary Local Storage & Test Artifacts
+backend/storage/datasets/*.csv
+backend/storage/datasets/*.json
+backend/storage/reports/*.pdf
+backend/storage/ev-*
+backend/storage/*.log
+*.log
+
+# Large Raw NHTSA Datasets
+backend/ml/data/fars2024/FARS2024NationalCSV.zip

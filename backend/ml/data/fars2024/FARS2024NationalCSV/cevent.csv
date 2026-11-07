@@ -1,0 +1,26 @@
+STATE,STATENAME,ST_CASE,EVENTNUM,VNUMBER1,AOI1,AOI1NAME,SOE,SOENAME,VNUMBER2,VNUMBER2NAME,AOI2,AOI2NAME
+1,Alabama,10001,1,1,55,Non-Harmful Event,63,Ran Off Roadway - Right,5555,Non-Harmful Event,55,Non-Harmful Event
+1,Alabama,10001,2,1,55,Non-Harmful Event,69,Re-entering Roadway,5555,Non-Harmful Event,55,Non-Harmful Event
+1,Alabama,10001,3,1,55,Non-Harmful Event,68,Cross Centerline,5555,Non-Harmful Event,55,Non-Harmful Event
+1,Alabama,10001,4,1,55,Non-Harmful Event,64,Ran Off Roadway - Left,5555,Non-Harmful Event,55,Non-Harmful Event
+1,Alabama,10001,5,1,12,12 Clock Point,42,Tree (Standing Only),9999,Not a Motor Vehicle,77,Not a Motor Vehicle
+1,Alabama,10001,6,1,0,Non-Collision,1,Rollover/Overturn,9999,Not a Motor Vehicle,77,Not a Motor Vehicle
+1,Alabama,10001,7,1,98,Not Reported,42,Tree (Standing Only),9999,Not a Motor Vehicle,77,Not a Motor Vehicle
+1,Alabama,10007,1,1,12,12 Clock Point,12,Motor Vehicle In-Transport,2,2,12,12 Clock Point
+1,Alabama,10007,2,2,55,Non-Harmful Event,64,Ran Off Roadway - Left,5555,Non-Harmful Event,55,Non-Harmful Event
+1,Alabama,10007,3,2,0,Non-Collision,1,Rollover/Overturn,9999,Not a Motor Vehicle,77,Not a Motor Vehicle
+1,Alabama,10009,1,2,12,12 Clock Point,12,Motor Vehicle In-Transport,1,1,9,9 Clock Point
+1,Alabama,10009,2,2,0,Non-Collision,1,Rollover/Overturn,9999,Not a Motor Vehicle,77,Not a Motor Vehicle
+1,Alabama,10015,1,1,12,12 Clock Point,12,Motor Vehicle In-Transport,2,2,6,6 Clock Point
+1,Alabama,10015,2,1,55,Non-Harmful Event,68,Cross Centerline,5555,Non-Harmful Event,55,Non-Harmful Event
+1,Alabama,10015,3,3,12,12 Clock Point,12,Motor Vehicle In-Transport,1,1,12,12 Clock Point
+1,Alabama,10015,4,3,55,Non-Harmful Event,63,Ran Off Roadway - Right,5555,Non-Harmful Event,55,Non-Harmful Event
+1,Alabama,10015,5,3,0,Non-Collision,1,Rollover/Overturn,9999,Not a Motor Vehicle,77,Not a Motor Vehicle
+1,Alabama,10015,6,1,55,Non-Harmful Event,64,Ran Off Roadway - Left,5555,Non-Harmful Event,55,Non-Harmful Event
+1,Alabama,10015,7,1,0,Non-Collision,1,Rollover/Overturn,9999,Not a Motor Vehicle,77,Not a Motor Vehicle
+1,Alabama,10022,1,1,12,12 Clock Point,12,Motor Vehicle In-Transport,2,2,6,6 Clock Point
+1,Alabama,10022,2,1,55,Non-Harmful Event,63,Ran Off Roadway - Right,5555,Non-Harmful Event,55,Non-Harmful Event
+1,Alabama,10022,3,1,2,2 Clock Point,42,Tree (Standing Only),9999,Not a Motor Vehicle,77,Not a Motor Vehicle
+1,Alabama,10022,4,2,55,Non-Harmful Event,63,Ran Off Roadway - Right,5555,Non-Harmful Event,55,Non-Harmful Event
+1,Alabama,10022,5,2,12,12 Clock Point,32,Culvert,9999,Not a Motor Vehicle,77,Not a Motor Vehicle
+1,Alabama,10022,6,2,0,Non-Collision,1,Rollover/Overturn,9999,Not a Motor Vehicle,77,Not a Motor Vehicle

@@ -1,0 +1,25 @@
+# Docker / Cloud Run Ignore Rules
+.git
+.gitignore
+.gcloudignore
+.venv
+venv
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache
+tests/
+backend/tests/
+node_modules/
+target/
+spring-backend/
+AUTO_RECON_REPORT_SOURCE_PACK/
+AUTO_RECON_REPORT_SOURCE_PACK.zip
+review_ii_screenshots/
+backup_*/
+*.zip
+*.tar.gz
+backend/storage/reports/
+backend/storage/datasets/
+backend/ml/data/fars2024/FARS2024NationalCSV.zip
