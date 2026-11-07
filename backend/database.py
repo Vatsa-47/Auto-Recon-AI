@@ -2,6 +2,7 @@ import json
 import hashlib
 import uuid
 import logging
+import ssl
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Optional, Dict, Any, Generator, Tuple, List
@@ -302,7 +303,59 @@ def create_db_engine(url: Optional[str] = None):
             poolclass=StaticPool
         )
     else:
-        # Authoritative MySQL Engine
+        from sqlalchemy.engine import make_url
+        try:
+            parsed_u = make_url(target_url)
+        except Exception as e:
+            raise ValueError(
+                f"CRITICAL STARTUP ERROR: Failed to parse database connection URL "
+                f"'{config.get_database_url_safe(target_url)}': {e}"
+            )
+
+        # Base connection arguments for PyMySQL
+        connect_args = {
+            "connect_timeout": config.DB_CONNECT_TIMEOUT,
+            "charset": "utf8mb4"
+        }
+
+        # Inspect target URL and environment to detect TiDB Cloud targeting
+        is_tidb = config.is_tidb_cloud(target_url)
+        target_host = (parsed_u.host or "").lower()
+
+        # Configure mandatory TLS certificate verification for TiDB Cloud or remote databases
+        if is_tidb:
+            ca_path = config.get_ca_cert_path()
+            if not ca_path:
+                raise ValueError(
+                    "CRITICAL STARTUP ERROR: Database connection targets TiDB Cloud, which requires mandatory "
+                    "TLS certificate and hostname verification, but no CA certificate was configured. "
+                    "Please supply the CA certificate via the TIDB_CA_CERT_BASE64 environment variable."
+                )
+
+            # PyMySQL SSL context with strict certificate and hostname verification
+            # Never disable TLS verification!
+            connect_args["ssl"] = {
+                "ca": ca_path,
+                "check_hostname": True,
+                "verify_mode": ssl.CERT_REQUIRED
+            }
+            connect_args["ssl_verify_cert"] = True
+            connect_args["ssl_verify_identity"] = True
+            logger.info(f"Enforcing mandatory TLS certificate and hostname verification for TiDB Cloud using CA: {ca_path}")
+        elif target_host not in ("127.0.0.1", "localhost"):
+            # If CA cert is configured for remote MySQL/TiDB host, enforce strict TLS without silent downgrade
+            ca_path = config.get_ca_cert_path()
+            if ca_path:
+                connect_args["ssl"] = {
+                    "ca": ca_path,
+                    "check_hostname": True,
+                    "verify_mode": ssl.CERT_REQUIRED
+                }
+                connect_args["ssl_verify_cert"] = True
+                connect_args["ssl_verify_identity"] = True
+                logger.info(f"Enforcing mandatory TLS certificate and hostname verification for remote host '{target_host}' using CA: {ca_path}")
+
+        # Authoritative MySQL / TiDB Engine with Render Free optimized connection pool
         engine = create_engine(
             target_url,
             poolclass=QueuePool,
@@ -310,7 +363,7 @@ def create_db_engine(url: Optional[str] = None):
             max_overflow=config.DB_MAX_OVERFLOW,
             pool_recycle=config.DB_POOL_RECYCLE,
             pool_pre_ping=True,
-            connect_args={"connect_timeout": 5}
+            connect_args=connect_args
         )
     return engine
 

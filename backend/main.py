@@ -106,24 +106,25 @@ logging.basicConfig(level=logging.INFO)
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # Verify active MySQL database connection
+    # Verify active MySQL / TiDB database connection
     is_healthy, err = check_db_connection()
+    db_engine_name = "TiDB Cloud" if config.is_tidb_cloud() else "MySQL"
     if is_healthy:
-        logger.info(f"Connected to MySQL database 'autorecon' at {config.DB_HOST}:{config.DB_PORT}")
+        logger.info(f"Connected to {db_engine_name} database '{config.DB_NAME}' at {config.DB_HOST}:{config.DB_PORT}")
         try:
             init_db()
             seed_sample_evidence_if_empty()
             app.state.db_connected = True
             app.state.db_error = None
         except Exception as e:
-            logger.error(f"Error initializing MySQL schema or seed data: {e}")
+            logger.error(f"Error initializing {db_engine_name} schema or seed data: {e}")
             app.state.db_connected = False
             app.state.db_error = str(e)
     else:
         app.state.db_connected = False
         app.state.db_error = err
         logger.error(
-            f"CRITICAL: Failed to connect to MySQL database 'autorecon' at {config.DB_HOST}:{config.DB_PORT}. "
+            f"CRITICAL: Failed to connect to {db_engine_name} database '{config.DB_NAME}' at {config.DB_HOST}:{config.DB_PORT}. "
             f"Error: {err}. Per system requirements, SQLite fallback is prohibited."
         )
 

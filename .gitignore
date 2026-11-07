@@ -17,6 +17,7 @@ build/
 # Environment & Credentials
 .env
 *.env.local
+*.pem
 
 # Git Backups & Redundant Archives
 .git-backup-*/
