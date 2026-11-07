@@ -6,6 +6,9 @@
  */
 
 document.addEventListener('DOMContentLoaded', () => {
+  // Configurable Backend API Base URL (loaded from config.js / window.AUTORECON_CONFIG)
+  const API_BASE = (window.AUTORECON_CONFIG && window.AUTORECON_CONFIG.API_BASE_URL) || window.API_BASE || 'http://127.0.0.1:8000/api';
+
   // Application State
   const state = {
     activeView: 'studio', // 'studio' | 'evidence' | 'reports'
@@ -3961,7 +3964,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // ==========================================
   // FORENSIC EVIDENCE LEDGER, REAL SHA-256 HASHING & FASTAPI + PYTORCH BACKEND
   // ==========================================
-  const API_BASE = window.API_BASE || "http://127.0.0.1:8000/api";
+  // API_BASE is configured globally via window.AUTORECON_CONFIG.API_BASE_URL
   state.backendConnected = false;
   state.localAuditTrails = {};
 
