@@ -3,17 +3,42 @@ AUTO-RECON AI — Model D: Historical Crash Similarity Matching Engine
 Retrieves comparable historical FARS crash records based on physical parameters, collision geometry, and road conditions.
 """
 
-import joblib
-import numpy as np
-import pandas as pd
+import logging
 from pathlib import Path
 from typing import Dict, Any, List, Optional
-from sklearn.neighbors import NearestNeighbors
-from sklearn.preprocessing import StandardScaler, OneHotEncoder
-from sklearn.compose import ColumnTransformer
 
 from backend import config
-from backend.ml.dataset import SEVERITY_CLASSES
+
+logger = logging.getLogger("autorecon.ml.similarity")
+
+try:
+    import joblib
+    import numpy as np
+    import pandas as pd
+    from sklearn.neighbors import NearestNeighbors
+    from sklearn.preprocessing import StandardScaler, OneHotEncoder
+    from sklearn.compose import ColumnTransformer
+    SIMILARITY_AVAILABLE = True
+except ImportError:
+    joblib = None
+    np = None
+    pd = None
+    NearestNeighbors = None
+    StandardScaler = None
+    OneHotEncoder = None
+    ColumnTransformer = None
+    SIMILARITY_AVAILABLE = False
+
+SEVERITY_CLASSES = [
+    "PROPERTY_DAMAGE_ONLY",
+    "MINOR_MODERATE_INJURY",
+    "SERIOUS_INCAPACITATING",
+    "FATAL_CATASTROPHIC"
+]
+
+def is_similarity_engine_available() -> bool:
+    """Returns True only if Scikit-learn, joblib, and pandas are installed."""
+    return bool(SIMILARITY_AVAILABLE)
 
 _similarity_cache: Dict[str, Any] = {}
 
@@ -117,6 +142,11 @@ _engine_instance: Optional[ScenarioSimilarityEngine] = None
 
 def get_similarity_engine() -> ScenarioSimilarityEngine:
     global _engine_instance
+    if not is_similarity_engine_available():
+        raise RuntimeError(
+            "Historical Crash Similarity Engine is unavailable in this lightweight deployment environment. "
+            "Scikit-learn dependencies were omitted to comply with the 512 MB RAM limit."
+        )
     if _engine_instance is None:
         _engine_instance = ScenarioSimilarityEngine()
     return _engine_instance

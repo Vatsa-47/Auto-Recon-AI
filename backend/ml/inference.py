@@ -4,22 +4,59 @@ Evaluates crash severity using trained PyTorch Neural Network and benchmarks wit
 """
 
 import json
-import joblib
-import numpy as np
-import pandas as pd
+import logging
 from pathlib import Path
 from typing import Dict, Any, List, Optional
 
-import torch
-
 from backend import config
-from backend.ml.dataset import SEVERITY_CLASSES
-from backend.ml.model import CrashSeverityNet
+
+logger = logging.getLogger("autorecon.ml.inference")
+
+# Optional ML dependencies for lightweight deployment (Render Free 512MB RAM)
+try:
+    import torch
+    TORCH_AVAILABLE = True
+except ImportError:
+    torch = None
+    TORCH_AVAILABLE = False
+
+try:
+    import joblib
+    import numpy as np
+    import pandas as pd
+    DATA_LIBS_AVAILABLE = True
+except ImportError:
+    joblib = None
+    np = None
+    pd = None
+    DATA_LIBS_AVAILABLE = False
+
+try:
+    from backend.ml.model import CrashSeverityNet
+except Exception:
+    CrashSeverityNet = None
+
+SEVERITY_CLASSES = [
+    "PROPERTY_DAMAGE_ONLY",
+    "MINOR_MODERATE_INJURY",
+    "SERIOUS_INCAPACITATING",
+    "FATAL_CATASTROPHIC"
+]
 
 _model_cache: Dict[str, Any] = {}
 
+def is_ml_severity_available() -> bool:
+    """Returns True only if PyTorch, Scikit-learn, Pandas, and Model definitions are available."""
+    return bool(TORCH_AVAILABLE and DATA_LIBS_AVAILABLE and CrashSeverityNet is not None)
+
 def get_ml_artifacts(models_dir: Optional[Path] = None, reload: bool = False):
     global _model_cache
+    if not is_ml_severity_available():
+        raise RuntimeError(
+            "PyTorch ML Severity Engine is unavailable in this lightweight deployment environment. "
+            "PyTorch and scientific dependencies were omitted to comply with the 512 MB RAM limit."
+        )
+
     target_dir = models_dir or config.ML_MODELS_DIR
     if not reload and "pytorch_model" in _model_cache:
         return _model_cache
@@ -30,8 +67,11 @@ def get_ml_artifacts(models_dir: Optional[Path] = None, reload: bool = False):
     meta_path = target_dir / "model_metadata.json"
 
     if not (pt_weights_path.exists() and sk_path.exists() and prep_path.exists()):
-        from backend.ml.train_pipeline import run_training_pipeline
-        run_training_pipeline(target_dir)
+        try:
+            from backend.ml.train_pipeline import run_training_pipeline
+            run_training_pipeline(target_dir)
+        except Exception as e:
+            raise RuntimeError(f"Unable to load or train ML severity artifacts: {e}")
 
     preprocessor = joblib.load(prep_path)
     baseline_model = joblib.load(sk_path)
@@ -66,6 +106,11 @@ def predict_crash_severity(
     road_condition: str = "DRY",
     vehicle_weight_class: str = "SEDAN"
 ) -> Dict[str, Any]:
+    if not is_ml_severity_available():
+        raise RuntimeError(
+            "PyTorch ML Severity Engine is unavailable in this lightweight deployment environment. "
+            "PyTorch and scientific dependencies were omitted to comply with the 512 MB RAM limit."
+        )
     artifacts = get_ml_artifacts()
     preprocessor = artifacts["preprocessor"]
     pytorch_model = artifacts["pytorch_model"]

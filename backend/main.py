@@ -128,12 +128,19 @@ async def lifespan(app: FastAPI):
             f"Error: {err}. Per system requirements, SQLite fallback is prohibited."
         )
 
-    # Initialize PyTorch ML artifacts & Pattern/Similarity engines
+    # Initialize PyTorch ML artifacts & Pattern/Similarity engines if available
     try:
-        get_ml_artifacts()
-        get_pattern_artifacts()
-        get_similarity_engine()
-        logger.info("PyTorch Crash Severity Neural Network, Pattern Classifier & Similarity Engine loaded successfully.")
+        from .ml.inference import is_ml_severity_available
+        from .ml.pattern_model import is_pattern_model_available
+        from .ml.similarity_engine import is_similarity_engine_available
+
+        if is_ml_severity_available():
+            get_ml_artifacts()
+        if is_pattern_model_available():
+            get_pattern_artifacts()
+        if is_similarity_engine_available():
+            get_similarity_engine()
+        logger.info("ML subsystem initialization check completed.")
     except Exception as e:
         logger.warning(f"Could not pre-load ML models on startup: {e}")
 
@@ -425,15 +432,19 @@ def health_check():
     storage_ok = config.STORAGE_DIR.exists() and os.access(config.STORAGE_DIR, os.W_OK)
     db_ok, db_err = check_db_connection()
 
-    db_type = f"MySQL 8.0 (autorecon via SQLAlchemy {config.build_database_url().split('://')[0]})"
+    db_engine_name = "TiDB Cloud" if config.is_tidb_cloud() else "MySQL 8.0"
+    db_type = f"{db_engine_name} ({config.DB_NAME} via SQLAlchemy {config.build_database_url().split('://')[0]})"
     if config.DATABASE_URL.startswith("sqlite"):
         db_type = "SQLite (Isolated Test Fixture Only)"
 
     app_status = "healthy" if (storage_ok and db_ok) else "degraded"
 
+    from .ml.inference import is_ml_severity_available
+    ml_active = is_ml_severity_available()
+
     return HealthResponse(
         status=app_status,
-        backend="FastAPI + PyTorch Incident Reconstruction Engine",
+        backend="FastAPI Incident Reconstruction Engine",
         storage_accessible=storage_ok,
         db_accessible=db_ok,
         db_type=db_type,
@@ -441,11 +452,11 @@ def health_check():
         db_error=db_err,
         timestamp=datetime.now(timezone.utc).isoformat(),
         features={
-            "pytorch_ml_pipeline": True,
+            "pytorch_ml_pipeline": ml_active,
             "fars_nhtsa_evaluation": True,
             "cfr_49_part_563_edr": True,
             "cryptographic_ledger_sha256": True,
-            "mysql_database": "autorecon"
+            "mysql_database": config.DB_NAME
         }
     )
 
@@ -692,17 +703,23 @@ async def ingest_vehicle_telemetry(
 @app.post("/api/ml/predict-severity", response_model=MLPredictionResponse)
 def ml_predict_severity(request: MLPredictionRequest):
     """Executes PyTorch CrashSeverityNet inference and benchmarks against Scikit-learn Baseline."""
-    result = predict_crash_severity(
-        pre_impact_speed_kph=request.pre_impact_speed_kph,
-        delta_v_kph=request.delta_v_kph,
-        brake_applied=request.brake_applied,
-        seatbelt_latched=request.seatbelt_latched,
-        airbag_deployed=request.airbag_deployed,
-        collision_type=request.collision_type,
-        road_condition=request.road_condition,
-        vehicle_weight_class=request.vehicle_weight_class
-    )
-    return result
+    try:
+        result = predict_crash_severity(
+            pre_impact_speed_kph=request.pre_impact_speed_kph,
+            delta_v_kph=request.delta_v_kph,
+            brake_applied=request.brake_applied,
+            seatbelt_latched=request.seatbelt_latched,
+            airbag_deployed=request.airbag_deployed,
+            collision_type=request.collision_type,
+            road_condition=request.road_condition,
+            vehicle_weight_class=request.vehicle_weight_class
+        )
+        return result
+    except (RuntimeError, ImportError) as e:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail=f"PyTorch crash severity prediction service is unavailable: {e}"
+        )
 
 @app.get("/api/ml/models", response_model=List[MLModelInfo])
 def get_ml_models(db: Session = Depends(require_db)):
@@ -732,41 +749,53 @@ def get_ml_models(db: Session = Depends(require_db)):
 @app.post("/api/ml/predict-pattern", response_model=MLPatternResponse)
 def ml_predict_pattern(request: MLPatternRequest):
     """Executes Model B: Random Forest Collision Pattern Classifier (FRONTAL, ANGLE, REAR, ROLLOVER, SIDESWIPE)."""
-    return predict_crash_pattern(
-        pre_impact_speed_kph=request.pre_impact_speed_kph,
-        delta_v_kph=request.delta_v_kph,
-        brake_applied=request.brake_applied,
-        seatbelt_latched=request.seatbelt_latched,
-        airbag_deployed=request.airbag_deployed,
-        road_condition=request.road_condition,
-        vehicle_weight_class=request.vehicle_weight_class
-    )
+    try:
+        return predict_crash_pattern(
+            pre_impact_speed_kph=request.pre_impact_speed_kph,
+            delta_v_kph=request.delta_v_kph,
+            brake_applied=request.brake_applied,
+            seatbelt_latched=request.seatbelt_latched,
+            airbag_deployed=request.airbag_deployed,
+            road_condition=request.road_condition,
+            vehicle_weight_class=request.vehicle_weight_class
+        )
+    except (RuntimeError, ImportError) as e:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail=f"Collision pattern prediction service is unavailable: {e}"
+        )
 
 @app.post("/api/ml/similar-crashes", response_model=MLSimilarityResponse)
 def ml_find_similar_crashes(request: MLSimilarityRequest):
     """Executes Model D: Scenario Similarity Matching Engine querying historical FARS crashes."""
-    engine = get_similarity_engine()
-    matches = engine.find_similar_crashes(
-        pre_impact_speed_kph=request.pre_impact_speed_kph,
-        delta_v_kph=request.delta_v_kph,
-        collision_type=request.collision_type,
-        road_condition=request.road_condition,
-        vehicle_weight_class=request.vehicle_weight_class,
-        seatbelt_latched=request.seatbelt_latched,
-        airbag_deployed=request.airbag_deployed,
-        top_k=request.top_k
-    )
-    return MLSimilarityResponse(
-        query_summary={
-            "pre_impact_speed_kph": request.pre_impact_speed_kph,
-            "delta_v_kph": request.delta_v_kph,
-            "collision_type": request.collision_type,
-            "road_condition": request.road_condition,
-            "vehicle_weight_class": request.vehicle_weight_class
-        },
-        matched_crashes=matches,
-        dataset_provenance="NHTSA Fatality Analysis Reporting System (FARS) 2024 National Census"
-    )
+    try:
+        engine = get_similarity_engine()
+        matches = engine.find_similar_crashes(
+            pre_impact_speed_kph=request.pre_impact_speed_kph,
+            delta_v_kph=request.delta_v_kph,
+            collision_type=request.collision_type,
+            road_condition=request.road_condition,
+            vehicle_weight_class=request.vehicle_weight_class,
+            seatbelt_latched=request.seatbelt_latched,
+            airbag_deployed=request.airbag_deployed,
+            top_k=request.top_k
+        )
+        return MLSimilarityResponse(
+            query_summary={
+                "pre_impact_speed_kph": request.pre_impact_speed_kph,
+                "delta_v_kph": request.delta_v_kph,
+                "collision_type": request.collision_type,
+                "road_condition": request.road_condition,
+                "vehicle_weight_class": request.vehicle_weight_class
+            },
+            matched_crashes=matches,
+            dataset_provenance="NHTSA Fatality Analysis Reporting System (FARS) 2024 National Census"
+        )
+    except (RuntimeError, ImportError) as e:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail=f"Historical crash similarity service is unavailable: {e}"
+        )
 
 @app.get("/api/reconstruction/fars-cases", response_model=List[FARSCaseSummary])
 def list_fars_historical_cases(db: Session = Depends(require_db)):

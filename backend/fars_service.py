@@ -9,8 +9,14 @@ import hashlib
 from pathlib import Path
 from datetime import datetime, timezone
 from typing import Dict, Any, List, Optional
-import pandas as pd
 from sqlalchemy.orm import Session
+
+try:
+    import pandas as pd
+    PANDAS_AVAILABLE = True
+except ImportError:
+    pd = None
+    PANDAS_AVAILABLE = False
 
 from backend import config
 from backend.database import (
@@ -18,7 +24,6 @@ from backend.database import (
     FARSCrashRecord,
     ReconstructionScenarioRecord
 )
-from backend.ml.event_analyzer import get_event_analyzer
 
 CURATED_FARS_CASES = [
     {
@@ -107,13 +112,20 @@ def generate_fars_scene_telemetry(
 
 def seed_fars_scenarios_to_mysql(db_session: Session):
     """Parses real NHTSA FARS tables and stores structured historical records in MySQL."""
+    if not PANDAS_AVAILABLE:
+        return
     fars_dir = config.BASE_DIR / "ml" / "data" / "fars2024" / "FARS2024NationalCSV"
     if not (fars_dir / "accident.csv").exists():
         return
 
+    try:
+        from backend.ml.event_analyzer import get_event_analyzer
+        event_analyzer = get_event_analyzer()
+    except Exception:
+        event_analyzer = None
+
     df_acc = pd.read_csv(fars_dir / "accident.csv", encoding='latin1', low_memory=False)
     df_veh = pd.read_csv(fars_dir / "vehicle.csv", encoding='latin1', low_memory=False)
-    event_analyzer = get_event_analyzer()
 
     for item in CURATED_FARS_CASES:
         sc = item["st_case"]

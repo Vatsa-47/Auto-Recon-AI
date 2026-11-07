@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 """
 Dataset Service: Secure Upload, Validation, Schema Detection, Feature Engineering & ML Pipeline Integration
 Supports:
@@ -15,8 +17,15 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Dict, Any, List, Optional, Tuple
 
-import numpy as np
-import pandas as pd
+try:
+    import numpy as np
+    import pandas as pd
+    PANDAS_AVAILABLE = True
+except ImportError:
+    np = None
+    pd = None
+    PANDAS_AVAILABLE = False
+
 from sqlalchemy.orm import Session
 from fastapi import HTTPException, UploadFile, status
 
@@ -30,9 +39,9 @@ from backend.database import (
     AuditLogModel,
     log_audit_event
 )
-from backend.ml.inference import predict_crash_severity
-from backend.ml.pattern_model import predict_crash_pattern
-from backend.ml.similarity_engine import get_similarity_engine
+from backend.ml.inference import predict_crash_severity, is_ml_severity_available
+from backend.ml.pattern_model import predict_crash_pattern, is_pattern_model_available
+from backend.ml.similarity_engine import get_similarity_engine, is_similarity_engine_available
 
 # Canonical column synonym dictionary for robust schema detection
 COLUMN_SYNONYMS = {
@@ -83,6 +92,8 @@ def detect_dataset_type_and_schema(df: pd.DataFrame) -> Tuple[str, Dict[str, str
       - GENERAL_TABULAR
     Returns (dataset_type, column_mapping, detected_warnings).
     """
+    if not PANDAS_AVAILABLE or pd is None:
+        raise RuntimeError("Dataset schema detection requires 'pandas', which is not installed in this environment.")
     cols_lower = {str(c).strip().lower(): c for c in df.columns}
     warnings = []
 
@@ -116,6 +127,11 @@ def detect_dataset_type_and_schema(df: pd.DataFrame) -> Tuple[str, Dict[str, str
 
 def parse_dataset_bytes(content: bytes, filename: str) -> Tuple[pd.DataFrame, str]:
     """Parses raw uploaded bytes into a Pandas DataFrame."""
+    if not PANDAS_AVAILABLE or pd is None:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="Dataset tabular parsing is unavailable in this lightweight deployment: pandas is not installed."
+        )
     lower_name = filename.lower()
     if lower_name.endswith(".csv"):
         try:
@@ -148,6 +164,8 @@ def parse_dataset_bytes(content: bytes, filename: str) -> Tuple[pd.DataFrame, st
 
 def generate_schema_summary(df: pd.DataFrame, mapping: Dict[str, str], ds_type: str, warnings: List[str]) -> Dict[str, Any]:
     """Generates detailed schema inspection metadata, data quality summary, and field availability."""
+    if not PANDAS_AVAILABLE or pd is None:
+        raise RuntimeError("Schema summary generation requires 'pandas', which is not installed in this environment.")
     total_rows = len(df)
     total_cols = len(df.columns)
     missing_counts = df.isnull().sum().to_dict()
@@ -195,6 +213,11 @@ def save_and_ingest_dataset(
     """
     if len(file_bytes) == 0:
         raise HTTPException(status_code=400, detail="Uploaded file is empty (0 bytes).")
+    if not PANDAS_AVAILABLE or pd is None:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="Dataset tabular ingestion is unavailable in this lightweight deployment: pandas is not installed."
+        )
     if len(file_bytes) > config.MAX_UPLOAD_SIZE_BYTES:
         raise HTTPException(
             status_code=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE,
@@ -339,6 +362,11 @@ def analyze_and_reconstruct_dataset(dataset_id: str, db: Session) -> Dict[str, A
       5. Derives multi-channel dynamic graph vectors.
       6. Persists analysis and scenario to MySQL.
     """
+    if not PANDAS_AVAILABLE or pd is None:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="Dataset analysis is unavailable in this lightweight deployment: pandas is not installed."
+        )
     dataset = db.query(DatasetModel).filter(DatasetModel.id == dataset_id).first()
     if not dataset:
         raise HTTPException(status_code=404, detail=f"Dataset {dataset_id} not found in database.")
@@ -390,35 +418,59 @@ def analyze_and_reconstruct_dataset(dataset_id: str, db: Session) -> Dict[str, A
             delta_v_kph = round(initial_speed_kph * 0.42, 1)
 
     # 2. Machine Learning Inference Using Real Ingested Crash Parameters
-    # Model A: PyTorch Crash Severity
-    ml_severity = predict_crash_severity(
-        pre_impact_speed_kph=initial_speed_kph,
-        delta_v_kph=delta_v_kph,
-        brake_applied=True,
-        seatbelt_latched=seatbelt_latched,
-        airbag_deployed=airbag_deployed,
-        collision_type=collision_type,
-        road_condition=road_condition
-    )
+    # Handle optional ML models without faking predictions
+    if is_ml_severity_available():
+        try:
+            ml_severity = predict_crash_severity(
+                pre_impact_speed_kph=initial_speed_kph,
+                delta_v_kph=delta_v_kph,
+                brake_applied=True,
+                seatbelt_latched=seatbelt_latched,
+                airbag_deployed=airbag_deployed,
+                collision_type=collision_type,
+                road_condition=road_condition
+            )
+        except Exception as e:
+            ml_severity = {"status": "UNAVAILABLE", "error": str(e)}
+    else:
+        ml_severity = {
+            "status": "UNAVAILABLE",
+            "message": "PyTorch ML Severity prediction is unavailable in this lightweight deployment environment (512 MB RAM limit)."
+        }
 
     # Model B: Collision Pattern Classification
-    ml_pattern = predict_crash_pattern(
-        pre_impact_speed_kph=initial_speed_kph,
-        delta_v_kph=delta_v_kph,
-        brake_applied=True,
-        road_condition=road_condition,
-        vehicle_weight_class=weight_class
-    )
+    if is_pattern_model_available():
+        try:
+            ml_pattern = predict_crash_pattern(
+                pre_impact_speed_kph=initial_speed_kph,
+                delta_v_kph=delta_v_kph,
+                brake_applied=True,
+                road_condition=road_condition,
+                vehicle_weight_class=weight_class
+            )
+        except Exception as e:
+            ml_pattern = {"status": "UNAVAILABLE", "error": str(e)}
+    else:
+        ml_pattern = {
+            "status": "UNAVAILABLE",
+            "message": "Crash Pattern Classifier is unavailable in this lightweight deployment environment (512 MB RAM limit)."
+        }
 
     # Model D: Historical Similar Crashes
-    similarity_engine = get_similarity_engine()
-    similar_cases = similarity_engine.find_similar_crashes(
-        pre_impact_speed_kph=initial_speed_kph,
-        delta_v_kph=delta_v_kph,
-        collision_type=collision_type,
-        road_condition=road_condition,
-        top_k=4
-    )
+    if is_similarity_engine_available():
+        try:
+            similarity_engine = get_similarity_engine()
+            similar_cases = similarity_engine.find_similar_crashes(
+                pre_impact_speed_kph=initial_speed_kph,
+                delta_v_kph=delta_v_kph,
+                collision_type=collision_type,
+                road_condition=road_condition,
+                top_k=4
+            )
+        except Exception as e:
+            similar_cases = []
+    else:
+        similar_cases = []
 
     # 3. Telemetry & Kinematic Scenario Extraction from Real Dataset Rows
     has_continuous_rows = time_col and time_col in df.columns and len(df) >= 3

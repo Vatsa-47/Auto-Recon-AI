@@ -1,0 +1,23 @@
+# ====================================================================
+# AUTO-RECON AI — Lightweight Render Free Production Dependencies
+# Optimized for Render Free tier (512 MB RAM limit).
+# Omits heavy ML frameworks (PyTorch, CUDA/NVIDIA wheels, Scikit-learn).
+# Runs full FastAPI backend, secure TiDB Cloud with mandatory TLS,
+# evidence management, reconstruction scenarios, and forensic reporting.
+# ====================================================================
+
+# Web Framework & ASGI Server
+fastapi>=0.110.0
+uvicorn>=0.28.0
+python-multipart>=0.0.9
+pydantic>=2.6.0
+
+# Database Integration (TiDB Cloud TLS & MySQL 8.0)
+sqlalchemy>=2.0.0
+pymysql>=1.1.0
+cryptography>=42.0.0
+python-dotenv>=1.0.0
+
+# PDF Forensic Reports & Networking
+reportlab>=4.0.0
+httpx>=0.27.0

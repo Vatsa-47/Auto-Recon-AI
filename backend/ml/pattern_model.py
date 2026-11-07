@@ -5,25 +5,40 @@ Trained on official NHTSA FARS 2024 National Crash Census data.
 """
 
 import json
-import joblib
+import logging
 from pathlib import Path
 from datetime import datetime, timezone
 from typing import Dict, Any, List, Optional
 
-import numpy as np
-import pandas as pd
-from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import StandardScaler, OneHotEncoder
-from sklearn.compose import ColumnTransformer
-from sklearn.ensemble import RandomForestClassifier
-from sklearn.metrics import accuracy_score, f1_score, confusion_matrix, classification_report
-
 from backend import config
 from backend.database import get_session_factory, MLModelRecord
+
+logger = logging.getLogger("autorecon.ml.pattern")
+
+try:
+    import joblib
+    import numpy as np
+    import pandas as pd
+    from sklearn.model_selection import train_test_split
+    from sklearn.preprocessing import StandardScaler, OneHotEncoder
+    from sklearn.compose import ColumnTransformer
+    from sklearn.ensemble import RandomForestClassifier
+    from sklearn.metrics import accuracy_score, f1_score, confusion_matrix, classification_report
+    PATTERN_AVAILABLE = True
+except ImportError:
+    joblib = None
+    np = None
+    pd = None
+    RandomForestClassifier = None
+    PATTERN_AVAILABLE = False
 
 PATTERN_CLASSES = ["FRONTAL", "ANGLE", "REAR", "ROLLOVER", "SIDESWIPE"]
 
 _pattern_cache: Dict[str, Any] = {}
+
+def is_pattern_model_available() -> bool:
+    """Returns True only if Scikit-learn, joblib, and pandas are installed."""
+    return bool(PATTERN_AVAILABLE)
 
 def train_pattern_classifier(
     data_path: Optional[Path] = None,
@@ -128,6 +143,12 @@ def train_pattern_classifier(
 
 def get_pattern_artifacts(save_dir: Optional[Path] = None):
     global _pattern_cache
+    if not is_pattern_model_available():
+        raise RuntimeError(
+            "Crash Pattern Classifier is unavailable in this lightweight deployment environment. "
+            "Scikit-learn dependencies were omitted to comply with the 512 MB RAM limit."
+        )
+
     target_dir = save_dir or config.ML_MODELS_DIR
     if "model" in _pattern_cache:
         return _pattern_cache
@@ -136,7 +157,10 @@ def get_pattern_artifacts(save_dir: Optional[Path] = None):
     prep_path = target_dir / "pattern_preprocessor.joblib"
 
     if not (model_path.exists() and prep_path.exists()):
-        train_pattern_classifier(save_dir=target_dir)
+        try:
+            train_pattern_classifier(save_dir=target_dir)
+        except Exception as e:
+            raise RuntimeError(f"Unable to load or train pattern artifacts: {e}")
 
     _pattern_cache = {
         "model": joblib.load(model_path),
@@ -153,6 +177,11 @@ def predict_crash_pattern(
     road_condition: str = "DRY",
     vehicle_weight_class: str = "SEDAN"
 ) -> Dict[str, Any]:
+    if not is_pattern_model_available():
+        raise RuntimeError(
+            "Crash Pattern Classifier is unavailable in this lightweight deployment environment. "
+            "Scikit-learn dependencies were omitted to comply with the 512 MB RAM limit."
+        )
     artifacts = get_pattern_artifacts()
     model = artifacts["model"]
     preprocessor = artifacts["preprocessor"]
